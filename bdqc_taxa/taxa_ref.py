@@ -29,9 +29,9 @@ class TaxaRef:
         gn_results = [
             result for species in gn_results 
             for result in species['preferredResults']]
+        out = []
         for result in gn_results:
             is_valid = result["currentRecordId"] == result["recordId"]
-            out = []
             if not is_valid:
                 out_kwargs = {
                     "source_id": result["dataSourceId"],

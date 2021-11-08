@@ -36,9 +36,19 @@ class TestFindAuthorship(unittest.TestCase):
 class TestTaxaRef(unittest.TestCase):
     def test_from_global_names(self, name = 'Acer saccharum'):
         refs = taxa_ref.TaxaRef.from_global_names(name)
+        self.assertTrue(len(refs) > 1)
         [self.assertTrue(v) for ref in refs for k, v in vars(ref).items() 
         if k not in ['id', 'match_type', 'authorship', 'rank_order']
         ]
         self.assertTrue(any([ref.match_type for ref in refs]))
         self.assertTrue(any([ref.authorship for ref in refs]))
         self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
+    
+    # def test_from_global_names(self, name = 'formica querquetulana', authorship = 'Kennedy & Davis, 1937'):
+    #     refs = taxa_ref.TaxaRef.from_global_names(name, authorship)
+    #     [self.assertTrue(v) for ref in refs for k, v in vars(ref).items() 
+    #     if k not in ['id', 'match_type', 'authorship', 'rank_order']
+    #     ]
+    #     self.assertTrue(any([ref.match_type for ref in refs]))
+    #     self.assertTrue(any([ref.authorship for ref in refs]))
+    #     self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
