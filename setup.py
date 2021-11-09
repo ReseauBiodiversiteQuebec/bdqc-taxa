@@ -16,7 +16,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "bdqc_taxa"},
-    packages=setuptools.find_packages(where="bdqc_taxa"),
+    packages=['bdqc_taxa'],
     python_requires=">=3.6",
 )
