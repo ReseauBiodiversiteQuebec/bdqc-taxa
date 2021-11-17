@@ -43,6 +43,7 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(any([ref.match_type for ref in refs]))
         self.assertTrue(any([ref.authorship for ref in refs]))
         self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
+        self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
     
     # def test_from_global_names(self, name = 'formica querquetulana', authorship = 'Kennedy & Davis, 1937'):
     #     refs = taxa_ref.TaxaRef.from_global_names(name, authorship)

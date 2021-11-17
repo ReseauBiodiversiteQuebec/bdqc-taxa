@@ -19,6 +19,7 @@ class TaxaRef:
                  match_type: str = ''):
         for param in signature(self.__init__).parameters:
             setattr(self, param, eval(param))
+            self.rank = rank.lower()
 
     @classmethod
     def from_global_names(cls, name: str, authorship: str = None):
