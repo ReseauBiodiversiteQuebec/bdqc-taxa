@@ -72,3 +72,8 @@ class Species:
         results = _get_url_data(url, params)
         return results
 
+    @classmethod
+    def get(cls, key: int):
+        url = f"{HOST}/v1/species/{key}"
+        results = _get_url_data(url)
+        return results

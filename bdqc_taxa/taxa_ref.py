@@ -1,6 +1,13 @@
+from os import readlink
 from . import global_names
+from . import gbif
 from typing import List
 from inspect import signature
+
+GBIF_SOURCE_KEY = 11 # Corresponds to global names
+GBIF_SOURCE_NAME = 'GBIF Backbone Taxonomy'
+GBIF_RANKS = ['kingdom', 'phylum', 'class', 'order', 'family',
+                'genus', 'species', 'subspecies']
 
 
 class TaxaRef:
@@ -16,7 +23,8 @@ class TaxaRef:
                  classification_srids: List[str] = None,
                  valid: bool = None,
                  valid_srid: str = '',
-                 match_type: str = ''):
+                 match_type: str = '',
+                 is_parent: bool = None):
         for param in signature(self.__init__).parameters:
             setattr(self, param, eval(param))
             self.rank = rank.lower()
@@ -48,7 +56,8 @@ class TaxaRef:
                         result["classificationIds"].split("|"),
                     "valid": is_valid,
                     "valid_srid": result["currentRecordId"],
-                    "match_type": result["matchType"].lower()
+                    "match_type": result["matchType"].lower(),
+                    "is_parent": False
                 }
                 out.append(cls(**out_kwargs))
             for rank_order, taxa_attributes in enumerate(zip(
@@ -62,10 +71,12 @@ class TaxaRef:
                     valid_authorship = find_authorship(
                         result["matchedName"],
                         result["matchedCanonicalFull"])
+                    is_parent = False
                     if is_valid:
                         match_type = result["matchType"].lower()
                 else:
                     valid_authorship = None
+                    is_parent = True
                 out_kwargs = {
                         "source_id": result["dataSourceId"],
                         "source_record_id": srid,
@@ -79,9 +90,84 @@ class TaxaRef:
                                 "|")[:rank_order + 1],
                         "valid": True,
                         "valid_srid": srid,
-                        "match_type": match_type
+                        "match_type": match_type,
+                        "is_parent": is_parent
                     }
                 out.append(cls(**out_kwargs))
+        return out
+
+    @classmethod
+    def from_gbif(cls, name: str, authorship: str = None):
+        if isinstance(authorship, str) and authorship.strip():
+            name =" ".join([name, authorship])
+        match_species = gbif.Species.match(name)
+        result: dict = gbif.Species.get(match_species['usageKey'])
+        rank_index = [
+            i for i, rank in enumerate(GBIF_RANKS)
+            if rank in result.keys() and
+                result['parent'] == result[rank]][0] + 1
+        rank = GBIF_RANKS[rank_index]
+
+        is_valid = result["taxonomicStatus"] == "ACCEPTED"
+
+        classification_srids = [
+                    result[f'{k}Key'] for k in GBIF_RANKS if k in result.keys()]
+
+        out = []
+        if not is_valid:
+            out_kwargs = {
+                "source_id": GBIF_SOURCE_KEY,
+                "source_name": GBIF_SOURCE_NAME,
+                "source_record_id": result["key"],
+                "scientific_name": result["canonicalName"],
+                "authorship": find_authorship(
+                    result["canonicalName"],
+                    result["scientificName"]),
+                "rank": result['rank'].lower(),
+                "classification_srids": classification_srids,
+                "valid": is_valid,
+                "valid_srid": result["acceptedKey"],
+                "match_type": match_species["matchType"].lower(),
+                "is_parent": False
+            }
+            out.append(cls(**out_kwargs))
+        for rank_order, rank in enumerate(GBIF_RANKS):
+            if rank not in result.keys():
+                break
+            taxa = result[rank]
+            srid = result[rank + 'Key']
+            match_type = None
+            if rank == result["rank"].lower():
+                valid_authorship = find_authorship(
+                    result["canonicalName"],
+                    result["scientificName"])
+                is_parent = False
+                if is_valid:
+                    match_type = match_species["matchType"].lower()
+            else:
+                valid_authorship = None
+                is_parent = True
+            out_kwargs = {
+                    "source_id": GBIF_SOURCE_KEY,
+                    "source_record_id": srid,
+                    "source_name": GBIF_SOURCE_NAME,
+                    "scientific_name": taxa,
+                    "authorship": valid_authorship,
+                    "rank": rank,
+                    "rank_order": rank_order,
+                    "classification_srids":classification_srids[:rank_order + 1],
+                    "valid": True,
+                    "valid_srid": srid,
+                    "match_type": match_type,
+                    "is_parent": is_parent
+                }
+            out.append(cls(**out_kwargs))
+        return out
+
+    @classmethod
+    def from_all_sources(cls, name: str, authorship: str = None):
+        out = cls.from_global_names(name, authorship)
+        out.extend(cls.from_gbif(name, authorship))
         return out
 
 

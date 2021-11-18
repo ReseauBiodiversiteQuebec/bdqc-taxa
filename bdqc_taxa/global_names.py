@@ -7,11 +7,13 @@ __all__ = ['verify']
 VERIFY_PREFIX = "api/v1/verifications"
 HOST = "https://verifier.globalnames.org"
 
+PREFFERED_SOURCES = [1, 3, 147]
+
 
 def verify(name: str):
     path_name = quote_plus(name.lower())
     params = urlencode(
-        {'pref_sources': "|".join(['%.0f' % v for v in [1, 3, 11, 147]]),
+        {'pref_sources': "|".join(['%.0f' % v for v in PREFFERED_SOURCES]),
          'capitalize': "true"}
     )
 

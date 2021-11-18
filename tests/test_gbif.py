@@ -5,6 +5,17 @@ from typing import List
 
 
 class TestSpecies(TestCase):
+    def test_get(self, key = 9036008):
+        result = Species.get(key=key)
+        self.assertIsInstance(result, dict)
+        self.assertTrue(all(k in result.keys() for k in [
+            'key', 'scientificName'
+        ]))
+        self.assertTrue(all([v for k, v in result.items()
+                             if k not in [
+                                 'synonym', 'nomenclaturalStatus', 'remarks',
+                                 'numDescendants', 'issues']]))
+
     def test_match_from_name(self, name='Antigone canadensis'):
         result = Species.match(name=name)
         self.assertIsInstance(result, dict)
