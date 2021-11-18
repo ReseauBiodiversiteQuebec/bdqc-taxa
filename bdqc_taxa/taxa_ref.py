@@ -108,18 +108,11 @@ class TaxaRef:
             result: dict = gbif.Species.get(match_species['usageKey'])
         except KeyError:
             return []
-        rank_index = [
-            i for i, rank in enumerate(GBIF_RANKS)
-            if rank in result.keys() and
-                result['parent'] == result[rank]][0] + 1
-        rank = GBIF_RANKS[rank_index]
-
         is_valid = result["taxonomicStatus"] == "ACCEPTED"
 
-        classification_srids = [
-                    result[f'{k}Key'] for k in GBIF_RANKS if k in result.keys()]
-
         out = []
+
+        # Create row for invalid requested taxon
         if not is_valid:
             out_kwargs = {
                 "source_id": GBIF_SOURCE_KEY,
@@ -130,15 +123,46 @@ class TaxaRef:
                     result["canonicalName"],
                     result["scientificName"]),
                 "rank": result['rank'].lower(),
-                "classification_srids": classification_srids,
+                "rank_order": [i for i, rank in enumerate(GBIF_RANKS)
+                    if rank == result['rank'].lower()][0],
+                "classification_srids": [
+                    result[f'{k}Key'] for k in GBIF_RANKS if k in result.keys()
+                    ],
                 "valid": is_valid,
                 "valid_srid": result["acceptedKey"],
                 "match_type": match_species["matchType"].lower(),
                 "is_parent": False
             }
             out.append(cls(**out_kwargs))
+            result = gbif.Species.get(match_species['acceptedUsageKey'])
+
+        # Create rows for valid taxon
+        classification_srids = [
+            result[f'{k}Key'] for k in GBIF_RANKS if k in result.keys()]
+
+        out_kwargs = {
+            "source_id": GBIF_SOURCE_KEY,
+            "source_name": GBIF_SOURCE_NAME,
+            "source_record_id": result["key"],
+            "scientific_name": result["canonicalName"],
+            "authorship": find_authorship(
+                result["canonicalName"],
+                result["scientificName"]),
+            "rank": result['rank'].lower(),
+            "rank_order": [i for i, rank in enumerate(GBIF_RANKS)
+                if rank == result['rank'].lower()][0],
+            "classification_srids": classification_srids,
+            "valid": True,
+            "valid_srid": result["key"],
+            "match_type": match_species["matchType"].lower(),
+            "is_parent": False
+        }
+        out.append(cls(**out_kwargs))
+
+
+        # Create rows for parent taxons
         for rank_order, rank in enumerate(GBIF_RANKS):
-            if rank not in result.keys():
+            if rank == result['rank'].lower():
                 break
             taxa = result[rank]
             srid = result[rank + 'Key']
@@ -167,7 +191,8 @@ class TaxaRef:
                     "match_type": match_type,
                     "is_parent": is_parent
                 }
-            out.append(cls(**out_kwargs))
+            out.append(cls(**out_kwargs))                
+        
         return out
 
     @classmethod
