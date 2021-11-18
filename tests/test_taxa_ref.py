@@ -48,6 +48,10 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
         self.assertTrue(all([ref.rank != 11 for ref in refs]))
 
+    def test_from_global_names_no_match(self, name = 'Vincent Beauregard'):
+        refs = taxa_ref.TaxaRef.from_global_names(name)
+        self.assertFalse(refs)
+
     def test_from_gbif(self, name = 'Acer saccharum'):
         refs = taxa_ref.TaxaRef.from_gbif(name)
         self.assertTrue(len(refs) > 1)
@@ -71,6 +75,10 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
         self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
 
+    def test_from_gbif_no_match(self, name = 'Vincent Beauregard'):
+        refs = taxa_ref.TaxaRef.from_gbif(name)
+        self.assertFalse(refs)
+    
     def test_from_all_sources(self, name = 'Acer saccharum'):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         self.assertTrue(len(refs) > 1)

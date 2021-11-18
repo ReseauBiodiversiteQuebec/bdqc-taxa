@@ -35,9 +35,12 @@ class TaxaRef:
             name =" ".join([name, authorship])
 
         gn_results = global_names.verify(name)
-        gn_results = [
-            result for species in gn_results 
-            for result in species['preferredResults']]
+        try:
+            gn_results = [
+                result for species in gn_results 
+                for result in species['preferredResults']]
+        except KeyError:
+            return []
         out = []
         for result in gn_results:
             is_valid = result["currentRecordId"] == result["recordId"]
@@ -101,7 +104,10 @@ class TaxaRef:
         if isinstance(authorship, str) and authorship.strip():
             name =" ".join([name, authorship])
         match_species = gbif.Species.match(name)
-        result: dict = gbif.Species.get(match_species['usageKey'])
+        try:
+            result: dict = gbif.Species.get(match_species['usageKey'])
+        except KeyError:
+            return []
         rank_index = [
             i for i, rank in enumerate(GBIF_RANKS)
             if rank in result.keys() and
