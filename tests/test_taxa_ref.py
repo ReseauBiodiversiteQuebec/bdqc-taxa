@@ -79,6 +79,36 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(len({(ref.valid, ref.rank_order) for ref in refs}) ==
             len(refs))
 
+    def test_from_gbif_bug_acceptedKey_error(
+            self, name = 'Kobresia simpliciuscula subholarctica (T.V.Egorova) Saarela'):
+        refs = taxa_ref.TaxaRef.from_gbif(name)
+        self.assertTrue(len(refs) > 1)
+        [self.assertTrue(v) for ref in refs for k, v in vars(ref).items() 
+        if k not in ['id', 'match_type', 'authorship', 'rank_order',
+            'is_parent', 'valid']
+        ]
+        self.assertTrue(any([ref.match_type for ref in refs]))
+        self.assertTrue(any([ref.authorship for ref in refs]))
+        self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
+        self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
+        self.assertTrue(len({(ref.valid, ref.rank_order) for ref in refs}) ==
+            len(refs))
+
+    def test_from_gbif_bug_rank_key_error(
+            self, name = 'Ranunculus arcticus (R. Br.) L. D. Benson'):
+        refs = taxa_ref.TaxaRef.from_gbif(name)
+        self.assertTrue(len(refs) > 1)
+        [self.assertTrue(v) for ref in refs for k, v in vars(ref).items() 
+        if k not in ['id', 'match_type', 'authorship', 'rank_order',
+            'is_parent', 'valid']
+        ]
+        self.assertTrue(any([ref.match_type for ref in refs]))
+        self.assertTrue(any([ref.authorship for ref in refs]))
+        self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
+        self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
+        self.assertTrue(len({(ref.valid, ref.rank_order) for ref in refs}) ==
+            len(refs))
+
     def test_from_gbif_w_authorship(self, name = 'Acer saccharum',
             authorship = 'Pax'):
         refs = taxa_ref.TaxaRef.from_gbif(name, authorship)

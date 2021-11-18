@@ -7,7 +7,7 @@ from inspect import signature
 GBIF_SOURCE_KEY = 11 # Corresponds to global names
 GBIF_SOURCE_NAME = 'GBIF Backbone Taxonomy'
 GBIF_RANKS = ['kingdom', 'phylum', 'class', 'order', 'family',
-                'genus', 'species', 'subspecies']
+                'genus', 'species', 'subspecies', 'variety']
 
 
 class TaxaRef:
@@ -108,7 +108,7 @@ class TaxaRef:
             result: dict = gbif.Species.get(match_species['usageKey'])
         except KeyError:
             return []
-        is_valid = result["taxonomicStatus"] == "ACCEPTED"
+        is_valid = "acceptedKey" not in result.keys()
 
         out = []
 
@@ -164,6 +164,8 @@ class TaxaRef:
         for rank_order, rank in enumerate(GBIF_RANKS):
             if rank == result['rank'].lower():
                 break
+            if rank not in result.keys():
+                continue
             taxa = result[rank]
             srid = result[rank + 'Key']
             match_type = None
