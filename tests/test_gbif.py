@@ -1,6 +1,6 @@
 import context
 from unittest import TestCase
-from gbif import Species
+from bdqc_taxa.gbif import Species
 from typing import List
 
 

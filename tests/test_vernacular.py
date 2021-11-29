@@ -1,5 +1,5 @@
 from unittest import TestCase, result
-from vernacular import Vernacular
+from bdqc_taxa.vernacular import Vernacular
 
 class TestVernacular(TestCase):
     def assertVernacularList(self, results):

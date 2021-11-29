@@ -1,6 +1,5 @@
 import unittest
 
-import global_names
 import context
 from bdqc_taxa import taxa_ref
 

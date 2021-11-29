@@ -1,4 +1,4 @@
-from gbif import Species
+from . import gbif
 from inspect import signature
 
 # ACCEPTED_DATA_SOURCE = [
@@ -19,7 +19,7 @@ class Vernacular:
     @classmethod
     def from_gbif(cls, gbif_key: int):
         out = []
-        gbif_results = Species.get_vernacular_name(gbif_key)
+        gbif_results = gbif.Species.get_vernacular_name(gbif_key)
         for result in gbif_results:
             if result['language'] not in ACCEPTED_LANGUAGE:
                 continue
@@ -37,5 +37,5 @@ class Vernacular:
     
     @classmethod
     def from_gbif_match(cls, name: str = '', **match_kwargs):
-        species = Species.match(name = name, **match_kwargs)
+        species = gbif.Species.match(name = name, **match_kwargs)
         return cls.from_gbif(species['usageKey'])
