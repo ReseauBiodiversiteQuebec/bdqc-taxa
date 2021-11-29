@@ -15,6 +15,8 @@ class Vernacular:
                  language: str = ''):
         for param in signature(self.__init__).parameters:
             setattr(self, param, eval(param))
+        self.language = language.lower()
+        self.name = name.lower()
     
     @classmethod
     def from_gbif(cls, gbif_key: int):
@@ -38,4 +40,7 @@ class Vernacular:
     @classmethod
     def from_gbif_match(cls, name: str = '', **match_kwargs):
         species = gbif.Species.match(name = name, **match_kwargs)
-        return cls.from_gbif(species['usageKey'])
+        try:
+            return cls.from_gbif(species['usageKey'])
+        except KeyError:
+            return [None]

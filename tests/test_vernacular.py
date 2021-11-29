@@ -24,6 +24,12 @@ class TestVernacular(TestCase):
         results = Vernacular.from_gbif_match(name)
         self.assertVernacularList(results)
 
+    
+    def test_from_gbif_match_no_match(self, name = 'Vincent Beauregard'):
+        results = Vernacular.from_gbif_match(name)
+        self.assertIsInstance(results, list)
+        self.assertIsNone(results[0])
+
     def test_from_gbid_match_passing_kwargs(self,
         name = 'Cyanocitta cristata',
         kingdom = 'Animalia'):
