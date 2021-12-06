@@ -7,6 +7,12 @@ from inspect import signature
 
 ACCEPTED_LANGUAGE = ['fra', 'eng']
 
+def initcap(sentence):
+    sentence = sentence.lower()
+    return " ".join(
+        [word[0].upper() + word[1:].lower() for word in sentence.split(" ")]
+    )
+
 class Vernacular:
     def __init__(self,
                  name: str = '',
@@ -16,7 +22,7 @@ class Vernacular:
         for param in signature(self.__init__).parameters:
             setattr(self, param, eval(param))
         self.language = language.lower()
-        self.name = name.lower()
+        self.name = initcap(name)
     
     @classmethod
     def from_gbif(cls, gbif_key: int):
