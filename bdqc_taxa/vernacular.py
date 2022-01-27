@@ -22,7 +22,7 @@ class Vernacular:
         for param in signature(self.__init__).parameters:
             setattr(self, param, eval(param))
         self.language = language.lower()
-        self.name = initcap(name)
+        self.name = name.lower()
     
     @classmethod
     def from_gbif(cls, gbif_key: int):

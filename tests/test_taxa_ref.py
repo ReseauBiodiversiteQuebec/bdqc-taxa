@@ -2,6 +2,7 @@ import unittest
 
 import context
 from bdqc_taxa import taxa_ref
+from bdqc_taxa import global_names
 
 class TestFindAuthorship(unittest.TestCase):
     def test_species_author(self):
