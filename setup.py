@@ -1,17 +1,25 @@
 import setuptools
+import os.path
+
+base_dir = os.path.dirname(__file__)
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+about = {}
+with open(os.path.join(base_dir, "bdqc_taxa", "__about__.py")) as f:
+    exec(f.read(), about)
+
+
 setuptools.setup(
-    name="bdqc_taxa",
-    version="0.2",
-    author="Vincent Beauregard",
-    author_email="vincent.beauregard@usherbrooke.ca",
-    description="`BIOQC-taxa` is a python package that interface with *Biodiversité Québec*'s database to query reference taxa sources, parse their return and generate records.",
+    name=about["__title__"],
+    version=about["__version__"],
+    description=about["__summary__"],
+    url=about["__uri__"],
+    author=about["__author__"],
+    author_email=about["__email__"],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/ReseauBiodiversiteQuebec/bdqc-taxa",
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
