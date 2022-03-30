@@ -12,7 +12,7 @@ __title__ = "bdqc_taxa"
 __summary__ = "`BIOQC-taxa` is a python package that interface with *Biodiversité Québec*'s database to query reference taxa sources, parse their return and generate records."
 __uri__ = "https://github.com/ReseauBiodiversiteQuebec/bdqc-taxa"
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 __author__ = "Vincent Beauregard"
 __email__ = "vincent.beauregard@usherbrooke.ca"

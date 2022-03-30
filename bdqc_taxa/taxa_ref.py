@@ -209,6 +209,12 @@ class TaxaRef:
     @classmethod
     def set_complex_match_type(cls, taxa_ref_list: List[TaxaRef]):
         out = []
+        
+        # Eliminate duplicates
+        taxa_ref_list = {
+            str(ref.__dict__): ref for ref in taxa_ref_list
+            }.values()
+
         source_names = {ref.source_name for ref in taxa_ref_list}
         source_refs = {source_name: {} for source_name in source_names}
         source_rank_count = {source_name: {} for source_name in source_names}

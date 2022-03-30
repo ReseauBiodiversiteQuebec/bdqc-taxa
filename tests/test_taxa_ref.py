@@ -169,6 +169,13 @@ class TestComplex(unittest.TestCase):
             len(refs) == len(distinct_srid)
         )
 
+        # BUG: For a single source, all but one match_type is complex
+        source_null_match = {ref.source_name: [] for ref in refs}
+        [source_null_match[ref.source_name].append(not bool(ref.match_type))
+            for ref in refs]
+        self.assertTrue(all([any(nulls)
+                        for nulls in source_null_match.values()]))
+
     # def test_from_global_names(self, name = 'formica querquetulana', authorship = 'Kennedy & Davis, 1937'):
     #     refs = taxa_ref.TaxaRef.from_global_names(name, authorship)
     #     [self.assertTrue(v) for ref in refs for k, v in vars(ref).items() 
