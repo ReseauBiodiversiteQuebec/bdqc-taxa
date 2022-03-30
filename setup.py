@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="bdqc_taxa",
-    version="0.0.1",
+    version="0.2",
     author="Vincent Beauregard",
     author_email="vincent.beauregard@usherbrooke.ca",
     description="`BIOQC-taxa` is a python package that interface with *Biodiversité Québec*'s database to query reference taxa sources, parse their return and generate records.",

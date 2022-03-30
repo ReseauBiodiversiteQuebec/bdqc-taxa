@@ -1,3 +1,4 @@
+from __future__ import annotations
 from os import readlink
 from . import global_names
 from . import gbif
@@ -201,7 +202,52 @@ class TaxaRef:
     def from_all_sources(cls, name: str, authorship: str = None):
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
+        if is_complex(name):
+            out = cls.set_complex_match_type(out)
         return out
+
+    @classmethod
+    def set_complex_match_type(cls, taxa_ref_list: List[TaxaRef]):
+        out = []
+        source_names = {ref.source_name for ref in taxa_ref_list}
+        source_refs = {source_name: {} for source_name in source_names}
+        source_rank_count = {source_name: {} for source_name in source_names}
+
+        # Store unique refs in dict by source and count rank duplicates (complex)
+        for ref in taxa_ref_list:
+            try:
+                source_refs[ref.source_name][ref.scientific_name]= ref
+            except KeyError:
+                source_refs[ref.source_name] = {ref.scientific_name: ref}
+                source_rank_count[ref.source_name] = {}
+
+            try:
+                source_rank_count[ref.source_name][str(ref.rank_order)] += 1
+            except KeyError:
+                source_rank_count[ref.source_name][str(ref.rank_order)] = 1
+
+        for source in source_refs.keys():
+            # get rid of uncommon rank levels where many different taxa name
+            source_set = []
+            for ref in source_refs[source].values():
+                if source_rank_count[source][str(ref.rank_order)] > 1:
+                    ref.match_type = 'complex'
+                    out.append(ref)
+                else:
+                    source_set.append(ref)
+
+            # Find common taxa rank of highest order
+            last_ref = max(source_set, key=lambda ref:ref.rank_order)
+
+            # Change match_type of that ref
+            last_ref.match_type = "complex_closest_parent"
+
+            out.extend(source_set)
+        return out
+
+
+def is_complex(name):
+    return "|" in name
 
 
 def find_authorship(name, name_simple):

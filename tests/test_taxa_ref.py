@@ -139,6 +139,36 @@ class TestTaxaRef(unittest.TestCase):
         pref_sources = global_names.PREFFERED_SOURCES + [11]
         self.assertTrue(all([v in ref_sources_id for v in pref_sources]))
 
+class TestComplex(unittest.TestCase):
+    def test_complex_is_true(self,
+        name = 'Lasiurus cinereus|Lasionycteris noctivagans'):
+        out = taxa_ref.is_complex(name)
+        self.assertTrue(out)
+
+    def test_complex_is_false(self, name = 'Lasionycteris noctivagans'):
+        out = taxa_ref.is_complex(name)
+        self.assertFalse(out)
+
+    def test_from_all_sources(self,
+        name = 'Lasiurus cinereus|Lasionycteris noctivagans'):
+
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertTrue(len(refs) > 1)
+
+        is_match_complex = [ref.match_type == "complex" for ref in refs]
+        self.assertTrue(
+            any(is_match_complex) and not all(is_match_complex)
+        )
+        is_common_parent = [ref.match_type == "complex_closest_parent" for ref in refs]
+        self.assertTrue(
+            sum(is_common_parent) == len({ref.source_id for ref in refs})
+        )
+
+        distinct_srid = {(r.source_id, r.source_record_id) for r in refs}
+        self.assertTrue(
+            len(refs) == len(distinct_srid)
+        )
+
     # def test_from_global_names(self, name = 'formica querquetulana', authorship = 'Kennedy & Davis, 1937'):
     #     refs = taxa_ref.TaxaRef.from_global_names(name, authorship)
     #     [self.assertTrue(v) for ref in refs for k, v in vars(ref).items() 
