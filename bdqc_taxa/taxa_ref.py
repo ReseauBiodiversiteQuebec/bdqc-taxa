@@ -233,21 +233,22 @@ class TaxaRef:
                 source_rank_count[ref.source_name][str(ref.rank_order)] = 1
 
         for source in source_refs.keys():
-            # get rid of uncommon rank levels where many different taxa name
-            source_set = []
-            for ref in source_refs[source].values():
-                if source_rank_count[source][str(ref.rank_order)] > 1:
-                    ref.match_type = 'complex'
-                    out.append(ref)
-                else:
-                    source_set.append(ref)
+            # order refs by rank order
+            source_set = sorted(
+                source_refs[source].values(), key = lambda x: x.rank_order
+                )
+            # Set match_type by their position in rank_order
+            complex_switch = False
+            for i, ref in enumerate(source_set):
+                if not complex_switch:
+                    # Can enter here and switch only once
+                    complex_switch = ref.rank_order == source_set[i - 1].rank_order
+                    if complex_switch:
+                        source_set[i - 2].match_type = "complex_closest_parent"
+                        source_set[i - 1].match_type = "complex"
 
-            # Find common taxa rank of highest order
-            last_ref = max(source_set, key=lambda ref:ref.rank_order)
-
-            # Change match_type of that ref
-            last_ref.match_type = "complex_closest_parent"
-
+                if complex_switch:
+                    ref.match_type = "complex"
             out.extend(source_set)
         return out
 
