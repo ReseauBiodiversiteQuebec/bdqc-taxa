@@ -129,9 +129,7 @@ class TaxaRef:
                 "source_name": GBIF_SOURCE_NAME,
                 "source_record_id": result["key"],
                 "scientific_name": result["canonicalName"],
-                "authorship": find_authorship(
-                    result["canonicalName"],
-                    result["scientificName"]),
+                "authorship": strip_authorship(result['authorship']),
                 "rank": result['rank'].lower(),
                 "rank_order": [i for i, rank in enumerate(GBIF_RANKS)
                     if rank == result['rank'].lower()][0],
@@ -155,9 +153,7 @@ class TaxaRef:
             "source_name": GBIF_SOURCE_NAME,
             "source_record_id": result["key"],
             "scientific_name": result["canonicalName"],
-            "authorship": find_authorship(
-                result["canonicalName"],
-                result["scientificName"]),
+            "authorship": strip_authorship(result['authorship']),
             "rank": result['rank'].lower(),
             "rank_order": [i for i, rank in enumerate(GBIF_RANKS)
                 if rank == result['rank'].lower()][0],
@@ -180,9 +176,7 @@ class TaxaRef:
             srid = result[rank + 'Key']
             match_type = None
             if rank == result["rank"].lower():
-                valid_authorship = find_authorship(
-                    result["canonicalName"],
-                    result["scientificName"])
+                valid_authorship = strip_authorship(result['authorship'])
                 is_parent = False
                 if is_valid:
                     match_type = match_species["matchType"].lower()
@@ -268,6 +262,11 @@ def is_complex(name):
 
 def find_authorship(name, name_simple):
     authorship = name.replace(name_simple, '')
+    authorship = strip_authorship(authorship)
+
+    return authorship
+
+def strip_authorship(authorship):
     authorship = authorship.strip()
     try:
         if authorship[0] == '(' and authorship[-1] == ')' \

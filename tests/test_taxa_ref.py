@@ -50,6 +50,15 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
         self.assertTrue(all([ref.rank != 11 for ref in refs]))
 
+        # Bug: Bad authorship value, equals scientific_name
+        bad_refs = [
+            ref for ref in refs
+            if ref.authorship
+                and ref.authorship == ref.scientific_name
+        ]
+        self.assertFalse(bad_refs)
+
+
     def test_from_global_names_no_match(self, name='Vincent Beauregard'):
         refs = taxa_ref.TaxaRef.from_global_names(name)
         self.assertFalse(refs)
@@ -67,6 +76,15 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(len({(ref.valid, ref.rank_order) for ref in refs}) ==
                         len(refs))
 
+        # Bug: Bad authorship value, equals scientific_name
+        bad_refs = [
+            ref for ref in refs
+            if ref.authorship
+                and ref.authorship == ref.scientific_name
+        ]
+        self.assertFalse(bad_refs)
+
+
     def test_from_gbif(self, name='Antigone canadensis'):
         refs = taxa_ref.TaxaRef.from_gbif(name)
         self.assertTrue(len(refs) > 1)
@@ -80,6 +98,15 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
         self.assertTrue(len({(ref.valid, ref.rank_order) for ref in refs}) ==
                         len(refs))
+
+        # Bug: Bad authorship value, equals scientific_name
+        bad_refs = [
+            ref for ref in refs
+            if ref.authorship
+                and ref.authorship == ref.scientific_name
+        ]
+        self.assertFalse(bad_refs)
+
 
     def test_from_gbif_bug_acceptedKey_error(
             self, name='Kobresia simpliciuscula subholarctica (T.V.Egorova) Saarela'):
@@ -139,7 +166,6 @@ class TestTaxaRef(unittest.TestCase):
         ref_sources_id = {ref.source_id for ref in refs}
         pref_sources = global_names.PREFFERED_SOURCES + [11]
         self.assertTrue(all([v in ref_sources_id for v in pref_sources]))
-
 
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
