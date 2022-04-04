@@ -194,6 +194,16 @@ class TestComplex(unittest.TestCase):
                 [source_max_rank[src] == source_match_rank[src]
                     for src in source_names]))
 
+        # BUG: Only one valid ref from GBIF
+        gbif_refs = [
+            ref for ref in refs
+            if ref.source_name == 'GBIF Backbone Taxonomy'
+                and ref.valid
+                and ref.match_type == "complex"
+                and ref.rank == "species"
+        ]
+        self.assertTrue(len(gbif_refs) == 2)
+
     # def test_from_global_names(self, name = 'formica querquetulana', authorship = 'Kennedy & Davis, 1937'):
     #     refs = taxa_ref.TaxaRef.from_global_names(name, authorship)
     #     [self.assertTrue(v) for ref in refs for k, v in vars(ref).items()

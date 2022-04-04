@@ -102,6 +102,15 @@ class TaxaRef:
 
     @classmethod
     def from_gbif(cls, name: str, authorship: str = None):
+        out = []
+        names = [v.strip() for v in name.split("|")]
+        for name in names:
+            out.extend(cls._from_gbif_singleton(name, authorship))
+        
+        return out
+
+    @classmethod
+    def _from_gbif_singleton(cls, name: str, authorship: str = None):
         if isinstance(authorship, str) and authorship.strip():
             name =" ".join([name, authorship])
         match_species = gbif.Species.match(name)
