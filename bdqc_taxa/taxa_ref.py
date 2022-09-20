@@ -36,10 +36,11 @@ class TaxaRef:
             name =" ".join([name, authorship])
 
         gn_results = global_names.verify(name)
+        gn_results = gn_results['names']
         try:
             gn_results = [
                 result for species in gn_results 
-                for result in species['preferredResults']]
+                for result in species['results']]
         except KeyError:
             return []
         out = []

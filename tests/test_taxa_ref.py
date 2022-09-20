@@ -164,7 +164,7 @@ class TestTaxaRef(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         self.assertTrue(len(refs) > 1)
         ref_sources_id = {ref.source_id for ref in refs}
-        pref_sources = global_names.PREFFERED_SOURCES + [11]
+        pref_sources = global_names.DATA_SOURCES + [11]
         self.assertTrue(all([v in ref_sources_id for v in pref_sources]))
 
 class TestComplex(unittest.TestCase):
