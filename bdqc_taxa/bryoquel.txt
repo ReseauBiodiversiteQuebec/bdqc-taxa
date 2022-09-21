@@ -1,0 +1,13 @@
+This file was generated on 2022-09-21 from the Bryoquel taxonomy file.
+The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2022-09-21.
+The last version of the bryoquel xlsx file is from 2022-09-12`.
+The file was parsed using the script `scripts/parse_bryoquel.py`.
+The file was parsed using the script parse_bryoquel.ipynb.
+The file contains a pandas dataframe with the following columns:
+id: the Bryoquel IDtaxon
+family_scientific_name: Famille
+species_scientific_name: Noms latins acceptés
+vernacular_name_fr: Noms français acceptés
+vernacular_name_en: Noms anglais acceptés
+clade: Clade
+authorship: Auteur obtenu de Noms latins acceptés
