@@ -38,6 +38,21 @@ class TestFindAuthorship(unittest.TestCase):
 
 
 class TestTaxaRef(unittest.TestCase):
+    def test_dict_dunder(self):
+        name = 'Lasiurus cinereus'
+        tr = taxa_ref.TaxaRef(name)
+        self.assertTrue(isinstance(tr.__dict__, dict))
+
+    def test_repr(self):
+        name = 'Lasiurus cinereus'
+        tr = taxa_ref.TaxaRef(name)
+        self.assertEqual(repr(tr), f"TaxaRef('{name}')")
+    
+    def test_str(self):
+        name = 'Lasiurus cinereus'
+        tr = taxa_ref.TaxaRef(name)
+        self.assertEqual(str(tr), name)
+
     def test_from_global_names(self, name='Acer saccharum'):
         refs = taxa_ref.TaxaRef.from_global_names(name)
         self.assertTrue(len(refs) > 1)

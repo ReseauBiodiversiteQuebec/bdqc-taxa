@@ -30,6 +30,29 @@ class TaxaRef:
             setattr(self, param, eval(param))
         self.rank = rank.lower()
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.scientific_name})"
+    
+    def __str__(self):
+        return self.scientific_name
+
+    def __dict__(self):
+        return {
+            "id": self.id,
+            "source_id": self.source_id,
+            "source_record_id": self.source_record_id,
+            "source_name": self.source_name,
+            "scientific_name": self.scientific_name,
+            "authorship": self.authorship,
+            "rank": self.rank,
+            "rank_order": self.rank_order,
+            "classification_srids": self.classification_srids,
+            "valid": self.valid,
+            "valid_srid": self.valid_srid,
+            "match_type": self.match_type,
+            "is_parent": self.is_parent
+        }
+
     @classmethod
     def from_global_names(cls, name: str, authorship: str = None):
         if isinstance(authorship, str) and authorship.strip():
