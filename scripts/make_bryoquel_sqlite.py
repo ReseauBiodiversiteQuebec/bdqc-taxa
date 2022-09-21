@@ -70,9 +70,9 @@ def parse_authorship(scientific_name):
 
 # %%
 # Test the function
-print(parse_authorship('Barbilophozia lycopodioides (Wallr.) Loeske'))
-print(parse_authorship('Anastrophyllum sphenoloboides R.M. Schust.'))
-print(parse_authorship('Anastrophyllum sphenoloboides'))
+# print(parse_authorship('Barbilophozia lycopodioides (Wallr.) Loeske'))
+# print(parse_authorship('Anastrophyllum sphenoloboides R.M. Schust.'))
+# print(parse_authorship('Anastrophyllum sphenoloboides'))
 
 # %%
 # Read the file
@@ -87,11 +87,14 @@ df['clade'] = np.nan
 # Add the authorship as a column
 df['authorship'] = np.nan
 
+# Add the species_scientific_name as a column
+df['species_scientific_name'] = np.nan
+
 # Rename the columns
 df = df.rename(columns={
     'IDtaxon': 'id',
     'Famille': 'family_scientific_name',
-    'Noms latins acceptés': 'species_scientific_name',
+    'Noms latins acceptés': 'species_canonical_name',
     'Noms français acceptés': 'vernacular_name_fr',
     'Noms anglais acceptés': 'vernacular_name_en'
 })
@@ -113,7 +116,7 @@ for i in range(len(df)):
     else:
         df.iloc[i, df.columns.get_loc('clade')] = clade_name
         try:
-            genus_species, authorship = parse_authorship(df.iloc[i]['species_scientific_name'])
+            genus_species, authorship = parse_authorship(df.iloc[i]['species_canonical_name'])
             df.iloc[i, df.columns.get_loc('species_scientific_name')] = genus_species
             df.iloc[i, df.columns.get_loc('authorship')] = authorship
         except IndexError:
@@ -137,6 +140,18 @@ df.head(20)
 # Required packages
 import sqlite3
 
+# Reorder the columns
+df = df[[
+    'clade',
+    'family_scientific_name',
+    'species_canonical_name',
+    'species_scientific_name',
+    'authorship',
+    'vernacular_name_fr',
+    'vernacular_name_en'
+]]
+
+
 # Connect to the database
 conn = sqlite3.connect('bdqc_taxa/bryoquel.sqlite')
 
@@ -155,11 +170,12 @@ with open('bdqc_taxa/bryoquel.txt', 'w') as f:
     f.write('The file was parsed using the script parse_bryoquel.ipynb.\n')
     f.write('The file contains a pandas dataframe with the following columns:\n')
     f.write('id: the Bryoquel IDtaxon\n')
+    f.write('clade: Clade\n')
     f.write('family_scientific_name: Famille\n')
-    f.write('species_scientific_name: Noms latins acceptés\n')
+    f.write('species_canonical_name: Noms latins acceptés\n')
+    f.write('species_scientific_name: Noms latins acceptés, sans auteur\n')
+    f.write('authorship: Auteur obtenu de Noms latins acceptés\n')
     f.write('vernacular_name_fr: Noms français acceptés\n')
     f.write('vernacular_name_en: Noms anglais acceptés\n')
-    f.write('clade: Clade\n')
-    f.write('authorship: Auteur obtenu de Noms latins acceptés\n')
 
 # %%

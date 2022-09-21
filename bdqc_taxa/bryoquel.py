@@ -34,12 +34,13 @@ def match_species(species) -> dict:
     dict
         A dictionary with the following keys:
         - id: the Bryoquel IDtaxon
+        - clade: Clade
         - family_scientific_name: Famille
-        - species_scientific_name: Noms latins acceptés
+        - species_canonical_name: Noms latins acceptés
+        - species_scientific_name: Noms latins acceptés, sans auteur
+        - authorship: Auteur obtenu de Noms latins acceptés
         - vernacular_name_fr: Noms français acceptés
         - vernacular_name_en: Noms anglais acceptés
-        - clade: Clade
-        - authorship: Auteur obtenu de Noms latins acceptés
     """
     # Get the cursor
     c = conn.cursor()
@@ -48,19 +49,20 @@ def match_species(species) -> dict:
     species = species.strip()
     
     # Fuzzy match the species name
-    c.execute("SELECT * FROM bryoquel WHERE species_scientific_name LIKE ?", (species,))
+    c.execute("SELECT * FROM bryoquel WHERE species_canonical_name LIKE ?", ('%' + species + '%',))
     rows = c.fetchall()
 
     # If there is a match, return the result
     if len(rows) == 1:
         return {
             'id': rows[0][0],
-            'family_scientific_name': rows[0][1],
-            'species_scientific_name': rows[0][2],
-            'vernacular_name_fr': rows[0][3],
-            'vernacular_name_en': rows[0][4],
-            'clade': rows[0][5],
-            'authorship': rows[0][6],
+            'clade': rows[0][1],
+            'family_scientific_name': rows[0][2],
+            'species_canonical_name': rows[0][3],
+            'species_scientific_name': rows[0][4],
+            'authorship': rows[0][5],
+            'vernacular_name_fr': rows[0][6],
+            'vernacular_name_en': rows[0][7]
         }
     # If there is no match, return None
     elif len(rows) == 0:
