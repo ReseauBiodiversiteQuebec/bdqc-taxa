@@ -2,10 +2,14 @@ from __future__ import annotations
 from os import readlink
 from . import global_names
 from . import gbif
+from . import bryoquel
 from typing import List
 from inspect import signature
 
 GBIF_SOURCE_KEY = 11 # Corresponds to global names
+BRYOQUEL_SOURCE_KEY = 1001 # Not in global names so start at 1000
+BROQUEL_SOURCE_NAME = 'Bryoquel'
+
 GBIF_SOURCE_NAME = 'GBIF Backbone Taxonomy'
 GBIF_RANKS = ['kingdom', 'phylum', 'class', 'order', 'family',
                 'genus', 'species', 'subspecies', 'variety']
@@ -13,11 +17,11 @@ GBIF_RANKS = ['kingdom', 'phylum', 'class', 'order', 'family',
 
 class TaxaRef:
     def __init__(self,
+                 scientific_name: str = '',
                  id: int = None,
                  source_id: int = None,
                  source_record_id: str = '',
                  source_name: str = '',
-                 scientific_name: str = '',
                  authorship: str = '',
                  rank: str = '',
                  rank_order: int = None,
@@ -31,11 +35,12 @@ class TaxaRef:
         self.rank = rank.lower()
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.scientific_name})"
+        return f"{self.__class__.__name__}(\'{self.scientific_name}\')"
     
     def __str__(self):
         return self.scientific_name
 
+    @property
     def __dict__(self):
         return {
             "id": self.id,
@@ -279,6 +284,27 @@ class TaxaRef:
             out.extend(source_set)
         return out
 
+    @classmethod
+    def from_bryoquel(cls, name: str):
+        match_species = bryoquel.match_species(name)
+        if match_species is None:
+            return []
+        
+        out = []
+        out.append(cls(
+            source_id=BRYOQUEL_SOURCE_KEY,
+            source_name=BROQUEL_SOURCE_NAME,
+            source_record_id=match_species["id"],
+            scientific_name=match_species["species_scientific_name"],
+            authorship=match_species["authorship"],
+            rank='species',
+            rank_order=GBIF_RANKS.index('species'),
+            valid=True,
+            valid_srid=match_species["id"],
+            match_type="exact",
+            is_parent=False
+        ))
+        return out
 
 def is_complex(name):
     return "|" in name

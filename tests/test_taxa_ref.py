@@ -182,6 +182,17 @@ class TestTaxaRef(unittest.TestCase):
         pref_sources = global_names.DATA_SOURCES + [11]
         self.assertTrue(all([v in ref_sources_id for v in pref_sources]))
 
+    def test_from_bryoquel(self, name='Anthelia julacea'):
+        refs = taxa_ref.TaxaRef.from_bryoquel(name)
+        self.assertTrue(len(refs) >= 1)
+        self.assertTrue(all([ref.source_id == 1001 for ref in refs]))
+
+    def test_from_bryoquel_canonical(self, name='Anthelia julacea (L.) Dumort.'):
+        refs = taxa_ref.TaxaRef.from_bryoquel(name)
+        self.assertTrue(len(refs) >= 1)
+        self.assertTrue(all([ref.source_id == 1001 for ref in refs]))
+
+
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
                              name='Lasiurus cinereus|Lasionycteris noctivagans'):
@@ -253,3 +264,7 @@ class TestComplex(unittest.TestCase):
     #     self.assertTrue(any([ref.match_type for ref in refs]))
     #     self.assertTrue(any([ref.authorship for ref in refs]))
     #     self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
+
+
+if __name__ == '__main__':
+    unittest.main()
