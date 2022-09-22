@@ -238,6 +238,7 @@ class TaxaRef:
     def from_all_sources(cls, name: str, authorship: str = None):
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
+        out.extend(cls.from_bryoquel(name))
         if is_complex(name):
             out = cls.set_complex_match_type(out)
         return out
@@ -307,6 +308,37 @@ class TaxaRef:
             valid_srid=match_species["id"],
             match_type="exact",
             is_parent=False
+        ))
+
+        # Create rows for genus
+        genus = match_species["species_scientific_name"].split(' ')[0]
+        out.append(cls(
+            source_id=BRYOQUEL_SOURCE_KEY,
+            source_name=BROQUEL_SOURCE_NAME,
+            source_record_id=genus.lower(),
+            scientific_name=genus,
+            authorship=None,
+            rank='genus',
+            rank_order=GBIF_RANKS.index('genus'),
+            valid=True,
+            valid_srid=genus.lower(),
+            match_type=None,
+            is_parent=True
+        ))
+
+        # Create rows for family
+        out.append(cls(
+            source_id=BRYOQUEL_SOURCE_KEY,
+            source_name=BROQUEL_SOURCE_NAME,
+            source_record_id=match_species["family_scientific_name"].lower(),
+            scientific_name=match_species["family_scientific_name"],
+            authorship=None,
+            rank='family',
+            rank_order=GBIF_RANKS.index('family'),
+            valid=True,
+            valid_srid=match_species["family_scientific_name"].lower(),
+            match_type=None,
+            is_parent=True
         ))
         return out
 

@@ -186,11 +186,31 @@ class TestTaxaRef(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_bryoquel(name)
         self.assertTrue(len(refs) >= 1)
         self.assertTrue(all([ref.source_id == 1001 for ref in refs]))
+        # Assert there is a family
+        self.assertTrue(any([ref.rank == 'family' for ref in refs]))
+
+        # Assert there is a genus
+        self.assertTrue(any([ref.rank == 'genus' for ref in refs]))
 
     def test_from_bryoquel_canonical(self, name='Anthelia julacea (L.) Dumort.'):
         refs = taxa_ref.TaxaRef.from_bryoquel(name)
         self.assertTrue(len(refs) >= 1)
         self.assertTrue(all([ref.source_id == 1001 for ref in refs]))
+        # Assert there is a family
+        self.assertTrue(any([ref.rank == 'family' for ref in refs]))
+
+        # Assert there is a genus
+        self.assertTrue(any([ref.rank == 'genus' for ref in refs]))
+
+    def test_from_bryoquel_no_match(self, name='Vincent Beauregard'):
+        refs = taxa_ref.TaxaRef.from_bryoquel(name)
+        self.assertFalse(refs)
+
+    def test_from_all_sources_bryoquel(self, name='Anthelia julacea'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertTrue(len(refs) >= 1)
+        self.assertTrue(any([ref.source_id == 1001 for ref in refs]))
+
 
 
 class TestComplex(unittest.TestCase):
