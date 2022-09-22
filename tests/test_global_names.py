@@ -21,3 +21,8 @@ class TestGlobalNames(TestCase):
         result: list = global_names.verify(name)
         self.assertIsInstance(result['names'], list)
         self.assertTrue(result['names'][0]['matchType'] == 'NoMatch')
+
+    def test_solve_conflicts(self):
+        gn_out: list = global_names._verify('Diptera')
+        filtered_out = global_names.verify('Diptera')
+        self.assertTrue(len(gn_out['names'][0]['results']) > len(filtered_out['names'][0]['results']))
