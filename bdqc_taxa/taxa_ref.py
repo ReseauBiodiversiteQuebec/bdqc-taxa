@@ -14,6 +14,7 @@ GBIF_SOURCE_NAME = 'GBIF Backbone Taxonomy'
 GBIF_RANKS = ['kingdom', 'phylum', 'class', 'order', 'family',
                 'genus', 'species', 'subspecies', 'variety']
 
+DATA_SOURCES = [1, 3, 147] # COL, ITIS, VASCAN
 
 class TaxaRef:
     def __init__(self,
@@ -59,11 +60,14 @@ class TaxaRef:
         }
 
     @classmethod
-    def from_global_names(cls, name: str, authorship: str = None):
+    def from_global_names(cls, name: str, authorship: str = None, data_sources: List[int] = None):
         if isinstance(authorship, str) and authorship.strip():
             name =" ".join([name, authorship])
 
-        gn_results = global_names.verify(name)
+        if data_sources is None:
+            data_sources = DATA_SOURCES
+
+        gn_results = global_names.verify(name, data_sources=data_sources)
         gn_results = gn_results['names']
         try:
             gn_results = [
