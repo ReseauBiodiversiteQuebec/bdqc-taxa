@@ -47,32 +47,33 @@ urlretrieve(url, file_path)
 
 # Returns a tuple with the "Genus species" and the authorship
 
-def parse_authorship(scientific_name):
-    if '(' in scientific_name:
-        # Split at the parenthesis
-        split_name = scientific_name.split('(')
-        # Get the first part
-        genus_species = split_name[0].strip()
-        # Get the second part
-        authorship = '(' + split_name[1]
-        return (genus_species, authorship)
-    else:
-        # Split at the first capital letter following a space
-        split_name = re.split('(?<=[a-z]) (?=[A-Z])', scientific_name)
-        if len(split_name) == 1:
-            # No authorship
-            return (scientific_name, '')
-        # Get the first part
-        genus_species = split_name[0].strip()
-        # Get the second part
-        authorship = split_name[1]
-        return (genus_species, authorship)
+# Function to parse the authorship from the scientific name
 
-# %%
+# Example 1: "Barbilophozia lycopodioides (Wallr.) Loeske" -> "(Wallr.) Loeske"
+# Example 2: "Anastrophyllum sphenoloboides R.M. Schust." -> "R.M. Schust."
+# Example 3: "Sphagnum riparium Ångström" -> "Ångström"
+
+# Returns a tuple with the "Genus species" and the authorship
+
+def parse_authorship(scientific_name):
+    # Remove the leading and trailing spaces
+    scientific_name = scientific_name.strip()
+    
+    # Find the second space
+    second_space = scientific_name.find(' ', scientific_name.find(' ') + 1)
+
+    # If there is no second space, return the scientific name and an empty string
+    if second_space == -1:
+        return (scientific_name, '')
+
+    # If there is a second space, return the scientific name and the authorship
+    return (scientific_name[:second_space], scientific_name[second_space + 1:])
+
 # Test the function
 # print(parse_authorship('Barbilophozia lycopodioides (Wallr.) Loeske'))
 # print(parse_authorship('Anastrophyllum sphenoloboides R.M. Schust.'))
 # print(parse_authorship('Anastrophyllum sphenoloboides'))
+# print(parse_authorship('Hypnum callichroum Brid.'))
 
 # %%
 # Read the file
@@ -107,6 +108,7 @@ df = df.drop(columns=['Gg', 'QC', 'L'])
 # %%
 # Iterate over the rows
 clade_name = ''
+clade_name = ''
 for i in range(len(df)):
     # If the row is a merged row, it contains the clade name and IDtaxon is NaN
     if pd.isna(df.iloc[i]['id']):
@@ -114,9 +116,14 @@ for i in range(len(df)):
     
     # If the row is not a merged row, it contains a species
     else:
+        # Replace non-breaking spaces with regular spaces
+        canonical_name = df.iloc[i]['species_canonical_name'].replace(u'\xa0', u' ')
+
+        df.loc[i, df.columns.get_loc('species_canonical_name')] = canonical_name
         df.iloc[i, df.columns.get_loc('clade')] = clade_name
+
         try:
-            genus_species, authorship = parse_authorship(df.iloc[i]['species_canonical_name'])
+            genus_species, authorship = parse_authorship(canonical_name)
             df.iloc[i, df.columns.get_loc('species_scientific_name')] = genus_species
             df.iloc[i, df.columns.get_loc('authorship')] = authorship
         except IndexError:
@@ -132,7 +139,7 @@ df['id'] = df['id'].astype(int)
 # Set the index to IDtaxon
 df = df.set_index('id')
 
-df.head(20)
+# df.head(20)
 
 # %%
 # Save df to a sqlite database `bdqc_taxa\data\bryoquel_12_septembre_2022.sqlite` without sqlalchemy
