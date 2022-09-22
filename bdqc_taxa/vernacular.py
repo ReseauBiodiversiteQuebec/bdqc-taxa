@@ -1,4 +1,5 @@
 from . import gbif
+from . import bryoquel
 from inspect import signature
 
 # ACCEPTED_DATA_SOURCE = [
@@ -50,3 +51,33 @@ class Vernacular:
             return cls.from_gbif(species['usageKey'])
         except KeyError:
             return [None]
+
+    @classmethod
+    def from_bryoquel_match(cls, name: str = ''):
+        species = bryoquel.match_species(name)
+        try:
+            return [cls(
+                name = species['vernacular_name_fr'],
+                source = 'Bryoquel',
+                language = 'fra',
+                source_taxon_key = species['id']
+            ), cls(
+                name = species['vernacular_name_en'],
+                source = 'Bryoquel',
+                language = 'eng',
+                source_taxon_key = species['id']
+            )]
+        except KeyError:
+            return [None]
+
+    @classmethod
+    def get(cls, name: str = None, gbif_key = None, **match_kwargs):
+        if gbif_key:
+            out = cls.from_gbif(gbif_key)
+        elif name:
+            out = cls.from_gbif_match(name = name, **match_kwargs)
+        
+        if name:
+            out.extend(cls.from_bryoquel_match(name))
+        
+        return out

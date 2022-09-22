@@ -30,8 +30,19 @@ class TestVernacular(TestCase):
         self.assertIsInstance(results, list)
         self.assertIsNone(results[0])
 
-    def test_from_gbid_match_passing_kwargs(self,
+    def test_from_gbif_match_passing_kwargs(self,
         name = 'Cyanocitta cristata',
         kingdom = 'Animalia'):
         results = Vernacular.from_gbif_match(name, kingdom = kingdom)
         self.assertVernacularList(results)
+
+    def test_from_bryoquel_match(self, name = 'Aulacomnium palustre'):
+        results = Vernacular.from_bryoquel_match(name)
+        self.assertVernacularList(results)
+
+    def test_get(self, name='Aulacomnium palustre', gbif_key = 2675979):
+        results = Vernacular.get(name, gbif_key)
+        self.assertVernacularList(results)
+
+        # Assert there is a result from Bryoquel
+        self.assertTrue(any([vn.source == 'Bryoquel' for vn in results]))
