@@ -239,7 +239,7 @@ class TaxaRef:
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
 
-        matched_name = { v.scientific_name for v in out if "fuzzy" == v.match_type }.pop()
+        matched_name = { v.scientific_name for v in out if v.match_type }.pop()
         out.extend(cls.from_bryoquel(matched_name if matched_name else name))
         if is_complex(name):
             out = cls.set_complex_match_type(out)

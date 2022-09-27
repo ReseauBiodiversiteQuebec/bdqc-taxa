@@ -79,5 +79,5 @@ def match_taxa(species) -> dict:
             'vernacular_name_en': rows[10]
         }
     # If there is no match, return None
-    elif len(rows) == 0:
+    else:
         return None
