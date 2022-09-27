@@ -5,10 +5,12 @@ The file was parsed using the script `scripts/parse_bryoquel.py`.
 The file was parsed using the script parse_bryoquel.ipynb.
 The file contains a pandas dataframe with the following columns:
 id: the Bryoquel IDtaxon
-clade: Clade
-family_scientific_name: Famille
-species_canonical_name: Noms latins acceptés
-species_scientific_name: Noms latins acceptés, sans auteur
+scientific_name: Noms latins acceptés du taxon, sans auteur
+taxon_rank: Taxon rank
+genus: Taxon genus
+family: Taxon family
+clade: Taxon clade
+canonical_full: Noms latins acceptés du taxon, avec auteur
 authorship: Auteur obtenu de Noms latins acceptés
 vernacular_name_fr: Noms français acceptés
 vernacular_name_en: Noms anglais acceptés
