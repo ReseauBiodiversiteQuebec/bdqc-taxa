@@ -21,7 +21,7 @@ db_path = pkg_resources.resource_filename('bdqc_taxa', DB_FILE)
 # Connect to the database
 conn = sqlite3.connect(db_path)
 
-def match_species(species) -> dict:
+def match_taxa(species) -> dict:
     """Match a species name to the Bryoquel database
     
     Parameters
@@ -34,13 +34,15 @@ def match_species(species) -> dict:
     dict
         A dictionary with the following keys:
         - id: the Bryoquel IDtaxon
-        - clade: Clade
-        - family_scientific_name: Famille
-        - species_canonical_name: Noms latins acceptés
-        - species_scientific_name: Noms latins acceptés, sans auteur
-        - authorship: Auteur obtenu de Noms latins acceptés
-        - vernacular_name_fr: Noms français acceptés
-        - vernacular_name_en: Noms anglais acceptés
+        - scientific_name: Noms latins accept�s du taxon, sans auteur
+        - taxon_rank: Taxon rank
+        - genus: Taxon genus
+        - family: Taxon family
+        - clade: Taxon clade
+        - canonical_full: Noms latins accept�s du taxon, avec auteur
+        - authorship: Auteur obtenu de Noms latins accept�s
+        - vernacular_name_fr: Noms fran�ais accept�s
+        - vernacular_name_en: Noms anglais accept�s
     """
     # Get the cursor
     c = conn.cursor()
@@ -48,21 +50,33 @@ def match_species(species) -> dict:
     # Get the species name
     species = species.strip()
     
-    # Fuzzy match the species name
-    c.execute("SELECT * FROM bryoquel WHERE species_canonical_name LIKE ?", ('%' + species + '%',))
-    rows = c.fetchall()
+    # Full text match with FTS5
+    # See https://www.sqlite.org/fts5.html
+
+    c.execute('''
+    SELECT bryoquel.* FROM bryoquel
+    JOIN bryoquel_fts ON bryoquel_fts.scientific_name = bryoquel.scientific_name
+    WHERE bryoquel_fts MATCH ?
+    ORDER BY rank
+    LIMIT 1
+    ''', (f'"{species}"',))
+
+    rows = c.fetchone()
 
     # If there is a match, return the result
-    if len(rows) == 1:
+    if rows:
         return {
-            'id': rows[0][0],
-            'clade': rows[0][1],
-            'family_scientific_name': rows[0][2],
-            'species_canonical_name': rows[0][3],
-            'species_scientific_name': rows[0][4],
-            'authorship': rows[0][5],
-            'vernacular_name_fr': rows[0][6],
-            'vernacular_name_en': rows[0][7]
+            'db_id': rows[0],
+            'id': rows[1],
+            'scientific_name': rows[2],
+            'taxon_rank': rows[3],
+            'genus': rows[4],
+            'family': rows[5],
+            'clade': rows[6],
+            'canonical_full': rows[7],
+            'authorship': rows[8],
+            'vernacular_name_fr': rows[9],
+            'vernacular_name_en': rows[10]
         }
     # If there is no match, return None
     elif len(rows) == 0:

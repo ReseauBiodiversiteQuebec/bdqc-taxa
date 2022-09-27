@@ -238,7 +238,9 @@ class TaxaRef:
     def from_all_sources(cls, name: str, authorship: str = None):
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
-        out.extend(cls.from_bryoquel(name))
+
+        matched_name = { v.scientific_name for v in out if "fuzzy" == v.match_type }.pop()
+        out.extend(cls.from_bryoquel(matched_name if matched_name else name))
         if is_complex(name):
             out = cls.set_complex_match_type(out)
         return out
@@ -291,55 +293,57 @@ class TaxaRef:
 
     @classmethod
     def from_bryoquel(cls, name: str):
-        match_species = bryoquel.match_species(name)
-        if match_species is None:
+        match_taxa = bryoquel.match_taxa(name)
+        if match_taxa is None:
             return []
         
-        out = []
-        out.append(cls(
-            source_id=BRYOQUEL_SOURCE_KEY,
-            source_name=BROQUEL_SOURCE_NAME,
-            source_record_id=match_species["id"],
-            scientific_name=match_species["species_scientific_name"],
-            authorship=match_species["authorship"],
-            rank='species',
-            rank_order=GBIF_RANKS.index('species'),
-            valid=True,
-            valid_srid=match_species["id"],
-            match_type="exact",
-            is_parent=False
-        ))
+        out = [
+            cls(
+                source_id=BRYOQUEL_SOURCE_KEY,
+                source_name=BROQUEL_SOURCE_NAME,
+                source_record_id=match_taxa["id"],
+                scientific_name=match_taxa["scientific_name"],
+                authorship=match_taxa["authorship"],
+                rank=match_taxa["taxon_rank"],
+                rank_order=GBIF_RANKS.index('species'),
+                valid=True,
+                valid_srid=match_taxa["id"],
+                match_type="exact",
+                is_parent=False
+            )]
+
 
         # Create rows for genus
-        genus = match_species["species_scientific_name"].split(' ')[0]
-        out.append(cls(
-            source_id=BRYOQUEL_SOURCE_KEY,
-            source_name=BROQUEL_SOURCE_NAME,
-            source_record_id=genus.lower(),
-            scientific_name=genus,
-            authorship=None,
-            rank='genus',
-            rank_order=GBIF_RANKS.index('genus'),
-            valid=True,
-            valid_srid=genus.lower(),
-            match_type=None,
-            is_parent=True
-        ))
+        if out[0].rank == 'species':
+            out.append(cls(
+                source_id=BRYOQUEL_SOURCE_KEY,
+                source_name=BROQUEL_SOURCE_NAME,
+                source_record_id=match_taxa["genus"].lower(),
+                scientific_name=match_taxa["genus"],
+                authorship=None,
+                rank='genus',
+                rank_order=GBIF_RANKS.index('genus'),
+                valid=True,
+                valid_srid=match_taxa["genus"].lower(),
+                match_type=None,
+                is_parent=True
+            ))
 
         # Create rows for family
-        out.append(cls(
-            source_id=BRYOQUEL_SOURCE_KEY,
-            source_name=BROQUEL_SOURCE_NAME,
-            source_record_id=match_species["family_scientific_name"].lower(),
-            scientific_name=match_species["family_scientific_name"],
-            authorship=None,
-            rank='family',
-            rank_order=GBIF_RANKS.index('family'),
-            valid=True,
-            valid_srid=match_species["family_scientific_name"].lower(),
-            match_type=None,
-            is_parent=True
-        ))
+        if out[0].rank in ['species', 'genus']:
+            out.append(cls(
+                source_id=BRYOQUEL_SOURCE_KEY,
+                source_name=BROQUEL_SOURCE_NAME,
+                source_record_id=match_taxa["family"].lower(),
+                scientific_name=match_taxa["family"],
+                authorship=None,
+                rank='family',
+                rank_order=GBIF_RANKS.index('family'),
+                valid=True,
+                valid_srid=match_taxa["family"].lower(),
+                match_type=None,
+                is_parent=True
+            ))
         return out
 
 def is_complex(name):

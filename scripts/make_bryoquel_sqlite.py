@@ -89,15 +89,15 @@ df['clade'] = np.nan
 df['authorship'] = np.nan
 
 # Add the species_scientific_name as a column
-df['species_scientific_name'] = np.nan
+df['scientific_name'] = np.nan
 
 # Rename the columns
 df = df.rename(columns={
     'IDtaxon': 'id',
-    'Famille': 'family_scientific_name',
-    'Noms latins acceptés': 'species_canonical_name',
-    'Noms français acceptés': 'vernacular_name_fr',
-    'Noms anglais acceptés': 'vernacular_name_en'
+    'Famille': 'family',
+    'Noms latins acceptés': 'canonical_full',
+    'Noms français acceptés': 'vernacular_fr',
+    'Noms anglais acceptés': 'vernacular_en'
 })
 
 # Remove the columns that are not needed
@@ -106,83 +106,170 @@ df = df.drop(columns=['Gg', 'QC', 'L'])
 # df.head(20)
 
 # %%
+# Parse the sheet row by row
+
 # Iterate over the rows
-clade_name = ''
 clade_name = ''
 for i in range(len(df)):
     # If the row is a merged row, it contains the clade name and IDtaxon is NaN
     if pd.isna(df.iloc[i]['id']):
-        clade_name = df.iloc[i]['family_scientific_name']
+        clade_name = df.iloc[i]['family']
     
     # If the row is not a merged row, it contains a species
     else:
         # Replace non-breaking spaces with regular spaces
-        canonical_name = df.iloc[i]['species_canonical_name'].replace(u'\xa0', u' ')
+        canonical_name = df.iloc[i]['canonical_full'].replace(u'\xa0', u' ')
 
-        df.loc[i, df.columns.get_loc('species_canonical_name')] = canonical_name
+        df.iloc[i, df.columns.get_loc('canonical_full')] = canonical_name
         df.iloc[i, df.columns.get_loc('clade')] = clade_name
 
         try:
             genus_species, authorship = parse_authorship(canonical_name)
-            df.iloc[i, df.columns.get_loc('species_scientific_name')] = genus_species
+            df.iloc[i, df.columns.get_loc('scientific_name')] = genus_species
             df.iloc[i, df.columns.get_loc('authorship')] = authorship
         except IndexError:
             print('Error at row ' + str(i))
-            print(df.iloc[i]['species_scientific_name'])
+            print(df.iloc[i]['scientific_name'])
 
 # Drop the rows that are not species
 df = df.dropna(subset=['id'])
 
-# Set IDtaxon as an integer
-df['id'] = df['id'].astype(int)
-
-# Set the index to IDtaxon
-df = df.set_index('id')
-
 # df.head(20)
 
-# %%
-# Save df to a sqlite database `bdqc_taxa\data\bryoquel_12_septembre_2022.sqlite` without sqlalchemy
+#  Add rows for genus and family
 
-# Required packages
-import sqlite3
+# Convert the id column to string
+df['bryoquel_id'] = ["ID" + "{:03d}".format(int(x)) for x in df['id']]
+
+# Create new rank columns
+df['taxon_rank'] = 'species'
+
+# Create new genus_scientific_name columns
+df['genus'] = df['scientific_name'].str.split(' ').str[0]
+
+# Add rows for the genus
+genus_df = df.copy()
+genus_df['scientific_name'] = genus_df['genus']
+genus_df['taxon_rank'] = 'genus'
+
+genus_df['bryoquel_id'] = genus_df['scientific_name'].str.lower()
+genus_df['canonical_full'] = np.nan
+genus_df['authorship'] = np.nan
+genus_df['vernacular_fr'] = np.nan
+genus_df['vernacular_en'] = np.nan
+genus_df = genus_df.drop_duplicates(subset=['scientific_name'])
+
+# Add rows for the family
+family_df = genus_df.copy()
+family_df['scientific_name'] = family_df['family']
+family_df['taxon_rank'] = 'family'
+
+# Set the IDtaxon to the scientific name in lowercase
+family_df['bryoquel_id'] = family_df['scientific_name'].str.lower() # TODO this is not string
+family_df['genus'] = np.nan
+family_df['canonical_full'] = np.nan    
+family_df['authorship'] = np.nan
+family_df['vernacular_fr'] = np.nan
+family_df['vernacular_en'] = np.nan
+family_df = family_df.drop_duplicates(subset=['scientific_name'])
+
+# Add genus and family rows to the dataframe
+out_df = pd.concat([df, genus_df, family_df])
+
+# Capitalize the scientific names
+out_df['scientific_name'] = out_df['scientific_name'].str.capitalize()
+
+# Capitalize the family names
+out_df['family'] = out_df['family'].str.capitalize()
+
+# Capitalize the genus names
+out_df['genus'] = out_df['genus'].str.capitalize()
 
 # Reorder the columns
-df = df[[
+out_df = out_df[[
+    'bryoquel_id',
+    'scientific_name',
+    'taxon_rank',
+    'genus',
+    'family',
     'clade',
-    'family_scientific_name',
-    'species_canonical_name',
-    'species_scientific_name',
+    'canonical_full',
     'authorship',
-    'vernacular_name_fr',
-    'vernacular_name_en'
+    'vernacular_fr',
+    'vernacular_en'
 ]]
 
+# %%
+# Save df to a sqlite database `bdqc_taxa\data\bryoquel_12_septembre_2022.sqlite`
+# Required packages
+import sqlite3
+import os
 
-# Connect to the database
-conn = sqlite3.connect('bdqc_taxa/bryoquel.sqlite')
+# Delete the database if it already exists
+if os.path.exists('../bdqc_taxa/bryoquel.sqlite'):
+    os.remove('../bdqc_taxa/bryoquel.sqlite')
 
-# Save the dataframe to the database
-df.to_sql('bryoquel', conn, if_exists='replace')
+# Save the dataframe to the database sqlite database with FTS5
+conn = sqlite3.connect('../bdqc_taxa/bryoquel.sqlite')
 
-# Close the connection
+# # Create the table
+out_df.to_sql('bryoquel', conn, if_exists='replace')
+
+# %%
+# Provide Autocomplete functionnality with FTS5
+# https://www.sqlite.org/fts5.html#full_text_index_queries
+
+# Create the FTS5 table
+conn.execute('CREATE VIRTUAL TABLE bryoquel_fts USING fts5(scientific_name, canonical_full, vernacular_fr, vernacular_en)')
+
+# Insert the data
+conn.execute('INSERT INTO bryoquel_fts (scientific_name, canonical_full, vernacular_fr, vernacular_en) SELECT scientific_name, canonical_full, vernacular_fr, vernacular_en FROM bryoquel')
+conn.commit()
 conn.close()
 
+# %%
+
+# Test match the database
+
+conn = sqlite3.connect('../bdqc_taxa/bryoquel.sqlite')
+c = conn.cursor()
+
+matched_name = 'Aulacomniaceae'
+
+c.execute('''
+SELECT bryoquel.* FROM bryoquel
+JOIN bryoquel_fts ON bryoquel_fts.scientific_name = bryoquel.scientific_name
+WHERE bryoquel_fts MATCH ?
+ORDER BY rank
+LIMIT 1
+''', (f'"{matched_name}"',))
+
+
+results = c.fetchall()
+print(results)
+conn.close()
+
+
+# %%
 # Write a readme file with the same name as the pickle file
-with open('bdqc_taxa/bryoquel.txt', 'w') as f:
+with open('../bdqc_taxa/bryoquel.txt', 'w') as f:
     f.write('This file was generated on 2022-09-21 from the Bryoquel taxonomy file.\n')
     f.write('The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2022-09-21.\n')
     f.write('The last version of the bryoquel xlsx file is from 2022-09-12`.\n')
     f.write('The file was parsed using the script `scripts/parse_bryoquel.py`.\n')
     f.write('The file was parsed using the script parse_bryoquel.ipynb.\n')
+    
     f.write('The file contains a pandas dataframe with the following columns:\n')
     f.write('id: the Bryoquel IDtaxon\n')
-    f.write('clade: Clade\n')
-    f.write('family_scientific_name: Famille\n')
-    f.write('species_canonical_name: Noms latins acceptés\n')
-    f.write('species_scientific_name: Noms latins acceptés, sans auteur\n')
+    f.write('scientific_name: Noms latins acceptés du taxon, sans auteur\n')
+    f.write('taxon_rank: Taxon rank\n')
+    f.write('genus: Taxon genus\n')
+    f.write('family: Taxon family\n')
+    f.write('clade: Taxon clade\n')
+    f.write('canonical_full: Noms latins acceptés du taxon, avec auteur\n')
     f.write('authorship: Auteur obtenu de Noms latins acceptés\n')
     f.write('vernacular_name_fr: Noms français acceptés\n')
     f.write('vernacular_name_en: Noms anglais acceptés\n')
+
 
 # %%

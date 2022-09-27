@@ -1,7 +1,7 @@
 import unittest
 
 import context
-from bdqc_taxa import taxa_ref
+from bdqc_taxa import bryoquel, taxa_ref
 from bdqc_taxa import global_names
 
 
@@ -211,6 +211,13 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(len(refs) >= 1)
         self.assertTrue(any([ref.source_id == 1001 for ref in refs]))
 
+    def test_fuzzy_match_bryoquel(self, name='Anthelia julaca'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertTrue(len(refs) >= 1)
+
+        bryoquel_matches = [ref for ref in refs if ref.source_id == 1001]
+        self.assertTrue(any(bryoquel_matches))
+        self.assertTrue(any([ref.scientific_name == 'Anthelia julacea' for ref in bryoquel_matches]))
 
 
 class TestComplex(unittest.TestCase):
