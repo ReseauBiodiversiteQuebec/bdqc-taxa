@@ -54,7 +54,7 @@ class Vernacular:
 
     @classmethod
     def from_bryoquel_match(cls, name: str = ''):
-        species = bryoquel.match_species(name)
+        species = bryoquel.match_taxa(name)
         try:
             return [cls(
                 name = species['vernacular_name_fr'],

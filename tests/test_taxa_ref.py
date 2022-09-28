@@ -182,6 +182,10 @@ class TestTaxaRef(unittest.TestCase):
         pref_sources = global_names.DATA_SOURCES + [11]
         self.assertTrue(all([v in ref_sources_id for v in pref_sources]))
 
+    def test_from_all_sources_no_match(self, name='Vincent Beauregard'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertFalse(refs)
+
     def test_from_bryoquel(self, name='Anthelia julacea'):
         refs = taxa_ref.TaxaRef.from_bryoquel(name)
         self.assertTrue(len(refs) >= 1)
