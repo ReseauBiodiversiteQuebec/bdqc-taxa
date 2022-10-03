@@ -98,6 +98,48 @@ class TestTaxaRef(unittest.TestCase):
                 and ref.authorship == ref.scientific_name
         ]
         self.assertFalse(bad_refs)
+    
+    def test_from_cdpnq(self, name='Libellula luctuosa'):
+        refs = taxa_ref.TaxaRef.from_cdpnq(name)
+        self.assertTrue(len(refs) > 1)
+        [self.assertTrue(v) for ref in refs for k, v in vars(ref).items()
+         if k not in ['id', 'match_type', 'authorship', 'rank_order', 'is_parent', 'classification_srids']
+         ]
+        self.assertTrue(any([ref.match_type for ref in refs]))
+        self.assertTrue(any([ref.authorship for ref in refs]))
+        self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
+        self.assertTrue(all([ref.rank.lower() == ref.rank for ref in refs]))
+        self.assertTrue(len({(ref.valid, ref.rank_order) for ref in refs}) ==
+                        len(refs))
+
+        # Bug: Bad authorship value, equals scientific_name
+        bad_refs = [
+            ref for ref in refs
+            if ref.authorship
+                and ref.authorship == ref.scientific_name
+        ]
+        self.assertFalse(bad_refs)
+
+    def test_from_cdpnq_no_match(self, name='Vincent Beauregard'):
+        refs = taxa_ref.TaxaRef.from_cdpnq(name)
+        self.assertFalse(refs)
+    
+    def test_from_all_sources_cdpnq(self, name='Libellula luctuosa'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertTrue(len(refs) > 1)
+        
+        # Assert any ref is from CDPNQ
+        self.assertTrue(any([ref.source_id == 1002 for ref in refs]))
+        self.assertTrue(any([ref.source_name == 'CDPNQ' for ref in refs]))
+
+    def test_from_all_sources_cdpnq_fuzzy_synonym(self, name='Gomphus exils'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertTrue(len(refs) > 1)
+        
+        # Assert any ref is from CDPNQ
+        self.assertTrue(any([ref.source_id == 1002 for ref in refs]))
+        self.assertTrue(any([ref.source_name == 'CDPNQ' for ref in refs]))
+  
 
 
     def test_from_gbif(self, name='Antigone canadensis'):

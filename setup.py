@@ -25,6 +25,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=['bdqc_taxa'],
-    package_data={'bdqc_taxa': ['bryoquel.sqlite']},
+    package_data={'bdqc_taxa': ['custom_sources.sqlite']},
     python_requires=">=3.6",
 )

@@ -27,6 +27,8 @@ import re
 import tempfile
 from urllib.request import urlretrieve
 
+DB_FILE = '../bdqc_taxa/custom_sources.sqlite'
+
 # %%
 # Download the xls file from the Bryoquel website and store in a temp folder
 # http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx
@@ -206,13 +208,13 @@ import sqlite3
 import os
 
 # Delete the database if it already exists
-if os.path.exists('../bdqc_taxa/bryoquel.sqlite'):
-    os.remove('../bdqc_taxa/bryoquel.sqlite')
+if os.path.exists(DB_FILE):
+    os.remove(DB_FILE)
 
 # Save the dataframe to the database sqlite database with FTS5
-conn = sqlite3.connect('../bdqc_taxa/bryoquel.sqlite')
+conn = sqlite3.connect(DB_FILE)
 
-# # Create the table
+# Create the table
 out_df.to_sql('bryoquel', conn, if_exists='replace')
 
 # %%
@@ -231,7 +233,7 @@ conn.close()
 
 # Test match the database
 
-conn = sqlite3.connect('../bdqc_taxa/bryoquel.sqlite')
+conn = sqlite3.connect(DB_FILE)
 c = conn.cursor()
 
 matched_name = 'Aulacomniaceae'
@@ -252,24 +254,35 @@ conn.close()
 
 # %%
 # Write a readme file with the same name as the pickle file
-with open('../bdqc_taxa/bryoquel.txt', 'w') as f:
-    f.write('This file was generated on 2022-09-21 from the Bryoquel taxonomy file.\n')
-    f.write('The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2022-09-21.\n')
-    f.write('The last version of the bryoquel xlsx file is from 2022-09-12`.\n')
-    f.write('The file was parsed using the script `scripts/parse_bryoquel.py`.\n')
-    f.write('The file was parsed using the script parse_bryoquel.ipynb.\n')
-    
-    f.write('The file contains a pandas dataframe with the following columns:\n')
-    f.write('id: the Bryoquel IDtaxon\n')
-    f.write('scientific_name: Noms latins acceptés du taxon, sans auteur\n')
-    f.write('taxon_rank: Taxon rank\n')
-    f.write('genus: Taxon genus\n')
-    f.write('family: Taxon family\n')
-    f.write('clade: Taxon clade\n')
-    f.write('canonical_full: Noms latins acceptés du taxon, avec auteur\n')
-    f.write('authorship: Auteur obtenu de Noms latins acceptés\n')
-    f.write('vernacular_name_fr: Noms français acceptés\n')
-    f.write('vernacular_name_en: Noms anglais acceptés\n')
+readme = """
+This is a custom source for bdqc_taxa.
+It contains custom taxa list as tables in a sqlite database with FTS5 enabled for autocomplete.
 
+TABLE bryoquel
+
+Description: 
+    This file was generated on 2022-09-21 from the Bryoquel taxonomy file.
+    The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2022-09-21.
+    The last version of the bryoquel xlsx file is from 2022-09-12`.
+    The file was parsed using the script `scripts/parse_bryoquel.py`.
+    The file was parsed using the script parse_bryoquel.ipynb.
+
+Columns:
+    The file contains a pandas dataframe with the following columns:
+    id: the Bryoquel IDtaxon
+    scientific_name: Noms latins acceptés du taxon, sans auteur
+    taxon_rank: Taxon rank
+    genus: Taxon genus
+    family: Taxon family
+    clade: Taxon clade
+    canonical_full: Noms latins acceptés du taxon, avec auteur
+    authorship: Auteur obtenu de Noms latins acceptés
+    vernacular_name_fr: Noms français acceptés
+    vernacular_name_en: Noms anglais acceptés
+"""
+
+# Write the readme file with UTF-8 encoding
+with open('../bdqc_taxa/custom_sources.txt', 'w', encoding='utf-8') as f:
+    f.write(readme)
 
 # %%

@@ -15,7 +15,7 @@ import pkg_resources
 
 # Get the database file from the package data
 
-DB_FILE = 'bryoquel.sqlite'
+DB_FILE = 'custom_sources.sqlite'
 db_path = pkg_resources.resource_filename('bdqc_taxa', DB_FILE)
 
 # Connect to the database

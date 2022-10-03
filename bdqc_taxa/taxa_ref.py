@@ -3,12 +3,15 @@ from os import readlink
 from . import global_names
 from . import gbif
 from . import bryoquel
+from . import cdpnq
 from typing import List
 from inspect import signature
 
 GBIF_SOURCE_KEY = 11 # Corresponds to global names
 BRYOQUEL_SOURCE_KEY = 1001 # Not in global names so start at 1000
 BROQUEL_SOURCE_NAME = 'Bryoquel'
+CDPNQ_SOURCE_NAME = 'CDPNQ'
+CDPNQ_SOURCE_KEY = 1002 # Not in global names so start at 1000
 
 GBIF_SOURCE_NAME = 'GBIF Backbone Taxonomy'
 GBIF_RANKS = ['kingdom', 'phylum', 'class', 'order', 'family',
@@ -240,10 +243,12 @@ class TaxaRef:
         out.extend(cls.from_gbif(name, authorship))
 
         matched_names = { v.scientific_name for v in out if v.match_type }
-        if len(matched_names) > 1:
+        if len(matched_names) >= 1:
             [out.extend(cls.from_bryoquel(m_name)) for m_name in matched_names]
+            [out.extend(cls.from_cdpnq(m_name)) for m_name in matched_names]
         else:
             out.extend(cls.from_bryoquel(name))
+            out.extend(cls.from_cdpnq(name))
         if is_complex(name):
             out = cls.set_complex_match_type(out)
         return out
@@ -344,6 +349,70 @@ class TaxaRef:
                 rank_order=GBIF_RANKS.index('family'),
                 valid=True,
                 valid_srid=match_taxa["family"].lower(),
+                match_type=None,
+                is_parent=True
+            ))
+        return out
+
+    @classmethod
+    def from_cdpnq(cls, name: str):
+        out = []
+
+        match_taxa = cdpnq.match_taxa(name)
+        if match_taxa is None:
+            return []
+
+        if match_taxa["synonym"]:
+            valid_match = cdpnq.match_taxa(match_taxa["valid_name"])
+            out.append(
+                cls(
+                    source_id=CDPNQ_SOURCE_KEY,
+                    source_name=CDPNQ_SOURCE_NAME,
+                    source_record_id=valid_match["name"],
+                    scientific_name=valid_match["name"],
+                    authorship=valid_match["author"],
+                    rank=valid_match["rank"],
+                    rank_order=GBIF_RANKS.index(valid_match["rank"]),
+                    valid=True,
+                    valid_srid=valid_match["name"],
+                    match_type="exact",
+                    is_parent=False
+                )
+            )
+            valid = False
+            valid_srid = valid_match["name"]
+        else:
+            valid = True
+            valid_srid = match_taxa["name"]
+        
+        out.append(cls(
+                source_id=CDPNQ_SOURCE_KEY,
+                source_name=CDPNQ_SOURCE_NAME,
+                source_record_id=match_taxa["name"],
+                scientific_name=match_taxa["name"],
+                authorship=match_taxa["author"],
+                rank=match_taxa["rank"],
+                rank_order=GBIF_RANKS.index(match_taxa["rank"]),
+                valid=valid,
+                valid_srid=valid_srid,
+                match_type="exact",
+                is_parent=False
+            )
+        )
+
+        # Create rows for genus
+        if out[0].rank == 'species':
+            genus = out[0].scientific_name.split()[0]
+            out.append(cls(
+                source_id=CDPNQ_SOURCE_KEY,
+                source_name=CDPNQ_SOURCE_NAME,
+                source_record_id = genus.lower(),
+                scientific_name=genus,
+                authorship=None,
+                rank='genus',
+                rank_order=GBIF_RANKS.index('genus'),
+                valid=True,
+                valid_srid=genus.lower(),
                 match_type=None,
                 is_parent=True
             ))

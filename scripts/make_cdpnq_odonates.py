@@ -1,0 +1,146 @@
+# Create a cdpnq_odonates table from the cdpnq odonates data file
+
+# %%
+import os
+import sys
+import pandas as pd
+import numpy as np
+import sqlite3
+
+# %%
+# Set the path to the data directory
+xls_path = "../scratch/nom français odonat CDPNQ.xlsx"
+
+# Load the data
+df = pd.read_excel(xls_path, header=0)
+
+# Remove the first 3 rows
+df = df.iloc[3:]
+
+# %%
+
+# Rename and add columns
+df = df.rename(columns={"Nom latin": "name",
+    "Auteur (nom latin)": "author",
+    "Nom français utilisé\nau Québec": "vernacular_fr",
+    "Nom françaissur le site Natureserve (mai 2021)": "vernacular_fr2",})
+
+# Add the valid_name column
+df["valid_name"] = df["name"]
+
+# Add the rank column
+df["rank"] = "species"
+
+# Add the synonym column
+df["synonym"] = False
+
+# Add the canonical_full column
+df["canonical_full"] = df["name"] + " " + df["author"]
+
+df.head()
+
+# %%
+# Create synonym rows
+
+# Case for Hylogomphus adelphus
+synonym = df.loc[df["name"] == "Hylogomphus adelphus", :].copy()
+synonym["name"] = synonym["name"].str.replace("Hylogomphus", "Gomphus")
+synonym["synonym"] = True
+df = pd.concat([df, synonym], axis=0)
+
+# Case where name contains genus "Phanogomphus"
+synonym = df.loc[df["name"].str.contains("Phanogomphus"), :].copy()
+synonym["name"] = synonym["name"].str.replace("Phanogomphus", "Gomphus")
+synonym["synonym"] = True
+df = pd.concat([df, synonym], axis=0)
+
+# Case where name contains genus "Gomphurus ventricosus"
+synonym = df.loc[df["name"].str.contains("Gomphurus ventricosus"), :].copy()
+synonym["name"] = synonym["name"].str.replace("Gomphurus", "Gomphus")
+synonym["synonym"] = True
+df = pd.concat([df, synonym], axis=0)
+
+# Case where name contains genus "Ischnura senegalis senegalensis"
+filter = df["name"].str.contains("Ischnura senegalis senegalensis")
+df.loc[filter, "name"] = "Ischnura senegalensis"
+df.loc[filter, "valid_name"] = "Ischnura senegalensis"
+
+synonym = df.loc[df["name"].str.contains("Ischnura senegalensis"), :].copy()
+synonym["name"] = synonym["name"].str.replace("Ischnura senegalensis", "Ischnura senegalis")
+synonym["synonym"] = True
+df = pd.concat([df, synonym], axis=0)
+
+# Show synonyms
+print("Synonyms:")
+df.loc[df["synonym"] == True, :]
+
+# %% Append the genuses as rows
+
+# Genus names
+genus_rows = df.copy()
+genus_rows["name"] = genus_rows["name"].str.split(" ").str[0]
+genus_rows["rank"] = "genus"
+genus_rows["synonym"] = False
+genus_rows["author"] = np.nan
+genus_rows["canonical_full"] = genus_rows["name"]
+genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.split(" ").str[0]
+genus_rows["vernacular_fr2"] = genus_rows["vernacular_fr2"].str.split(" ").str[0]
+
+# Drop duplicates
+genus_rows = genus_rows.drop_duplicates(subset=["name"])
+
+# Append the genus rows
+df = pd.concat([df, genus_rows], axis=0)
+
+print("Genus rows:")
+df[df["rank"] == "genus"].head()
+
+# %%
+# Write to sqlite database
+
+# Reorder columns
+df = df[["name", "valid_name", "rank", "synonym", "author", "canonical_full",
+    "vernacular_fr", "vernacular_fr2"]]
+
+db_file = "..\\bdqc_taxa\\custom_sources.sqlite"
+conn = sqlite3.connect(db_file)
+# Drop the table if it exists
+conn.execute("DROP TABLE IF EXISTS cdpnq_odonates")
+
+# Write the table
+df.to_sql("cdpnq_odonates", conn, if_exists="replace", index=False)
+
+# Create fts5 virtual table for full text search
+c = conn.cursor()
+c.execute("DROP TABLE IF EXISTS cdpnq_odonates_fts")
+c.execute("CREATE VIRTUAL TABLE cdpnq_odonates_fts USING fts5(name, canonical_full, vernacular_fr, vernacular_fr2)")
+c.execute("INSERT INTO cdpnq_odonates_fts (name, canonical_full, vernacular_fr, vernacular_fr2) SELECT name, canonical_full, vernacular_fr, vernacular_fr2 FROM cdpnq_odonates")
+conn.commit()
+conn.close()
+
+# %%
+# Append to the sqlite README file
+readme = """
+
+TABLE cdpnq_odonates
+
+Description: 
+    This file was generated from the CDPNQ odonates data file.
+    The file was obtained from Anouk.Simard@mffp.gouv.qc.ca on May 24, 2022
+    The last version of the bryoquel xlsx file is from 2022-09-12`.
+    The file was parsed using the script `scripts/make_cdpnq_odonates.py`.
+
+Columns:
+    name: scientific name
+    valid_name: valid scientific name
+    rank: rank of the taxa
+    synonym: boolean indicating if the name is a synonym
+    author: author of the scientific name
+    canonical_full: canonical full name
+    vernacular_fr: vernacular name in French
+    vernacular_fr2: vernacular name in French from Natureserve
+"""
+
+with open("..\\bdqc_taxa\\custom_sources.txt", "a") as f:
+    f.write(readme)
+# %%
