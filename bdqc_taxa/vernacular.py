@@ -1,5 +1,6 @@
 from . import gbif
 from . import bryoquel
+from . import cdpnq
 from inspect import signature
 
 # ACCEPTED_DATA_SOURCE = [
@@ -50,12 +51,12 @@ class Vernacular:
         try:
             return cls.from_gbif(species['usageKey'])
         except KeyError:
-            return [None]
+            return []
 
     @classmethod
     def from_bryoquel_match(cls, name: str = ''):
         species = bryoquel.match_taxa(name)
-        try:
+        if species:
             return [cls(
                 name = species['vernacular_name_fr'],
                 source = 'Bryoquel',
@@ -67,8 +68,21 @@ class Vernacular:
                 language = 'eng',
                 source_taxon_key = species['id']
             )]
-        except KeyError:
-            return [None]
+        else:
+            return []
+
+    @classmethod
+    def from_cdpnq_match(cls, name: str = ''):
+        taxa = cdpnq.match_taxa(name)
+        if taxa is None:
+            return []
+        else:
+            return [cls(
+                name = taxa['vernacular_fr'],
+                source = 'CDPNQ',
+                language = 'fra',
+                source_taxon_key = taxa['name']
+            )]
 
     @classmethod
     def get(cls, name: str = None, gbif_key = None, **match_kwargs):
@@ -79,5 +93,6 @@ class Vernacular:
         
         if name:
             out.extend(cls.from_bryoquel_match(name))
+            out.extend(cls.from_cdpnq_match(name))
         
         return out
