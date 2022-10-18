@@ -59,7 +59,7 @@ def match_taxa(name) -> dict:
     JOIN cdpnq_odonates_fts ON cdpnq_odonates_fts.name = cdpnq_odonates.name
     WHERE cdpnq_odonates_fts MATCH ?
     ORDER BY rank
-    ''', (name,))
+    ''', (f'"{name}"',))
 
     # Get the first result
     result = c.fetchone()

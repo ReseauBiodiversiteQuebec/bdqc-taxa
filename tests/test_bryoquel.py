@@ -36,3 +36,10 @@ class TestBryoquel(TestCase):
         self.assertEqual(result['vernacular_name_en'], None)
         self.assertEqual(result['clade'], 'Musci')
         self.assertEqual(result['authorship'], None)
+
+    # Test bug case "Ptilium crista-castrensis"
+    def test_match_species_bug(self, species='Ptilium crista-castrensis'):
+        # Test a species that is in the database
+        result = match_taxa(species)
+        # Assert any result
+        self.assertTrue(result)

@@ -338,6 +338,11 @@ class TestComplex(unittest.TestCase):
     #     self.assertTrue(any([ref.authorship for ref in refs]))
     #     self.assertTrue(all([isinstance(ref.rank_order, int) for ref in refs]))
 
+    # Test bug case for name with hyphen
+    def test_from_all_sources_hyphen(self, name='Ptilium crista-castrensis'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertTrue(len(refs) >= 1)
+
 
 if __name__ == '__main__':
     unittest.main()
