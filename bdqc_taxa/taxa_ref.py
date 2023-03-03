@@ -358,64 +358,68 @@ class TaxaRef:
     def from_cdpnq(cls, name: str):
         out = []
 
-        match_taxa = cdpnq.match_taxa(name)
-        if match_taxa is None:
+        refs = cdpnq.match_taxa(name)
+        if refs is None:
             return []
-
-        if match_taxa["synonym"]:
-            valid_match = cdpnq.match_taxa(match_taxa["valid_name"])
-            out.append(
-                cls(
+        for match_taxa in refs:
+            if match_taxa["synonym"]:
+                valid_match = cdpnq.match_taxa(match_taxa["valid_name"])[0]
+                out.append(
+                    cls(
+                        source_id=CDPNQ_SOURCE_KEY,
+                        source_name=CDPNQ_SOURCE_NAME,
+                        source_record_id=valid_match["name"],
+                        scientific_name=valid_match["name"],
+                        authorship=valid_match["author"],
+                        rank=valid_match["rank"],
+                        rank_order=GBIF_RANKS.index(valid_match["rank"]),
+                        valid=True,
+                        valid_srid=valid_match["name"],
+                        match_type="exact",
+                        is_parent=False
+                    )
+                )
+                valid = False
+                valid_srid = valid_match["name"]
+            else:
+                valid = True
+                valid_srid = match_taxa["name"]
+            
+            out.append(cls(
                     source_id=CDPNQ_SOURCE_KEY,
                     source_name=CDPNQ_SOURCE_NAME,
-                    source_record_id=valid_match["name"],
-                    scientific_name=valid_match["name"],
-                    authorship=valid_match["author"],
-                    rank=valid_match["rank"],
-                    rank_order=GBIF_RANKS.index(valid_match["rank"]),
-                    valid=True,
-                    valid_srid=valid_match["name"],
+                    source_record_id=match_taxa["name"],
+                    scientific_name=match_taxa["name"],
+                    authorship=match_taxa["author"],
+                    rank=match_taxa["rank"],
+                    rank_order=GBIF_RANKS.index(match_taxa["rank"]),
+                    valid=valid,
+                    valid_srid=valid_srid,
                     match_type="exact",
                     is_parent=False
                 )
             )
-            valid = False
-            valid_srid = valid_match["name"]
-        else:
-            valid = True
-            valid_srid = match_taxa["name"]
-        
-        out.append(cls(
-                source_id=CDPNQ_SOURCE_KEY,
-                source_name=CDPNQ_SOURCE_NAME,
-                source_record_id=match_taxa["name"],
-                scientific_name=match_taxa["name"],
-                authorship=match_taxa["author"],
-                rank=match_taxa["rank"],
-                rank_order=GBIF_RANKS.index(match_taxa["rank"]),
-                valid=valid,
-                valid_srid=valid_srid,
-                match_type="exact",
-                is_parent=False
-            )
-        )
 
-        # Create rows for genus
-        if out[0].rank == 'species':
-            genus = out[0].scientific_name.split()[0]
-            out.append(cls(
-                source_id=CDPNQ_SOURCE_KEY,
-                source_name=CDPNQ_SOURCE_NAME,
-                source_record_id = genus.lower(),
-                scientific_name=genus,
-                authorship=None,
-                rank='genus',
-                rank_order=GBIF_RANKS.index('genus'),
-                valid=True,
-                valid_srid=genus.lower(),
-                match_type=None,
-                is_parent=True
-            ))
+            # Create rows for genus
+            if out[0].rank == 'species':
+                genus = out[0].scientific_name.split()[0]
+                out.append(cls(
+                    source_id=CDPNQ_SOURCE_KEY,
+                    source_name=CDPNQ_SOURCE_NAME,
+                    source_record_id = genus.lower(),
+                    scientific_name=genus,
+                    authorship=None,
+                    rank='genus',
+                    rank_order=GBIF_RANKS.index('genus'),
+                    valid=True,
+                    valid_srid=genus.lower(),
+                    match_type=None,
+                    is_parent=True
+                ))
+
+        # Remove duplicates
+        out = {ref.source_record_id: ref for ref in out}.values()
+
         return out
 
 def is_complex(name):

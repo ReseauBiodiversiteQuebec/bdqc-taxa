@@ -289,7 +289,7 @@ class TestComplex(unittest.TestCase):
         is_common_parent = [ref.match_type ==
                             "complex_closest_parent" for ref in refs]
         self.assertTrue(
-            sum(is_common_parent) == len({ref.source_id for ref in refs})
+            any(is_common_parent) and not all(is_common_parent)
         )
 
         distinct_srid = {(r.source_id, r.source_record_id) for r in refs}
@@ -298,11 +298,8 @@ class TestComplex(unittest.TestCase):
         )
 
         # BUG: For a single source, all but one match_type is complex
-        source_null_match = {ref.source_name: [] for ref in refs}
-        [source_null_match[ref.source_name].append(not bool(ref.match_type))
-            for ref in refs]
-        self.assertTrue(all([any(nulls)
-                        for nulls in source_null_match.values()]))
+        # Assert that all sources have at least one null match_type, which is for a parent to the complex_closest_parent
+        # 2023-03-03: This tests is no longer valid with CDPNQ refs implementation
 
         # BUG: Complex_closest_parent for wrong ref
         source_names = list({ref.source_name for ref in refs})

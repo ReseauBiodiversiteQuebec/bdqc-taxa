@@ -73,16 +73,18 @@ class Vernacular:
 
     @classmethod
     def from_cdpnq_match(cls, name: str = ''):
-        taxa = cdpnq.match_taxa(name)
-        if taxa is None:
-            return []
-        else:
-            return [cls(
+        taxas = cdpnq.match_taxa(name)
+        out = []
+        for taxa in taxas:
+            out.append(cls(
                 name = taxa['vernacular_fr'],
                 source = 'CDPNQ',
                 language = 'fra',
                 source_taxon_key = taxa['name']
-            )]
+            ))
+        
+        return out
+
 
     @classmethod
     def get(cls, name: str = None, gbif_key = None, **match_kwargs):
