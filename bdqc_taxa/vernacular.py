@@ -91,21 +91,16 @@ class Vernacular:
 
 
     @classmethod
-    def get(cls, name: str = None, gbif_key = None, **match_kwargs):
+    def from_match(cls, name: str = None, **match_kwargs):
         name = [name] if name else []
-        if gbif_key:
-            out = cls.from_gbif(gbif_key)
-        elif name:
-            match = taxa_ref.TaxaRef.from_all_sources(name[0])
-            name = {m.scientific_name for m in match if not m.is_parent}
+        match = taxa_ref.TaxaRef.from_all_sources(name[0])
+        name = {m.scientific_name for m in match if not m.is_parent}
 
-            gbif_keys = {m.source_record_id for m in match
-                if m.source_name == 'GBIF Backbone Taxonomy' and not m.is_parent}
-            out = []
-            [out.extend(cls.from_gbif(gbif_key=k, **match_kwargs)) for k in gbif_keys]
-        
-        if name:
-            [out.extend(cls.from_bryoquel_match(n, **match_kwargs)) for n in name]
-            [out.extend(cls.from_cdpnq_match(n, **match_kwargs)) for n in name]
+        gbif_keys = {m.source_record_id for m in match
+            if m.source_name == 'GBIF Backbone Taxonomy' and not m.is_parent}
+        out = []
+        [out.extend(cls.from_gbif(gbif_key=k, **match_kwargs)) for k in gbif_keys]
+        [out.extend(cls.from_bryoquel_match(n, **match_kwargs)) for n in name]
+        [out.extend(cls.from_cdpnq_match(n, **match_kwargs)) for n in name]
         
         return out

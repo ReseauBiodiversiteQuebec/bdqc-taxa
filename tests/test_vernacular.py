@@ -38,20 +38,13 @@ class TestVernacular(TestCase):
         results = Vernacular.from_gbif_match(name, kingdom = kingdom)
         self.assertVernacularList(results)
 
-    def test_get(self, name = 'Cyanocitta cristata'):
-        results = Vernacular.get(name)
+    def test_from_match(self, name = 'Cyanocitta cristata'):
+        results = Vernacular.from_match(name)
         self.assertVernacularList(results)
 
     def test_from_bryoquel_match(self, name = 'Aulacomnium palustre'):
         results = Vernacular.from_bryoquel_match(name)
         self.assertVernacularList(results)
-
-    def test_get_bryoquel(self, name='Aulacomnium palustre', gbif_key = 2675979):
-        results = Vernacular.get(name, gbif_key)
-        self.assertVernacularList(results)
-
-        # Assert there is a result from Bryoquel
-        self.assertTrue(any([vn.source == 'Bryoquel' for vn in results]))
     
     def test_from_cdpnq_match(self, name = 'Libellula luctuosa'):
         results = Vernacular.from_cdpnq_match(name)
@@ -63,12 +56,12 @@ class TestVernacular(TestCase):
         self.assertVernacularList(results)
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
     
-    def test_get_cdpnq_no_match(self, name = 'Libellula julia'):
+    def test_get_cdpnq_no_match(self, name = 'Vincent Beauregard'):
         results = Vernacular.from_cdpnq_match(name)
         self.assertFalse(results)
 
     # Special case test: Synonym scientific name is not in CDPNQ : Bug #5
     def test_synonym_cdpnq(self, name = 'Libellula julia'):
-        results = Vernacular.get(name)
+        results = Vernacular.from_match(name)
         self.assertVernacularList(results)
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
