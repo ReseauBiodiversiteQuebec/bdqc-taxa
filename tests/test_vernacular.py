@@ -59,6 +59,10 @@ class TestVernacular(TestCase):
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
 
     def test_get_cdpnq(self, name = 'Libellula luctuosa'):
+    def test_get_cdpnq_no_match(self, name = 'Libellula julia'):
+        results = Vernacular.from_cdpnq_match(name)
+        self.assertFalse(results)
+
         results = Vernacular.get(name)
         self.assertVernacularList(results)
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))

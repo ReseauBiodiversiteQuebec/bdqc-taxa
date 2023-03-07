@@ -74,6 +74,8 @@ class Vernacular:
     @classmethod
     def from_cdpnq_match(cls, name: str = ''):
         taxas = cdpnq.match_taxa(name)
+        if not taxas:
+            return []
         out = []
         for taxa in taxas:
             out.append(cls(
