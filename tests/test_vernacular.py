@@ -41,10 +41,28 @@ class TestVernacular(TestCase):
     def test_from_match(self, name = 'Cyanocitta cristata'):
         results = Vernacular.from_match(name)
         self.assertVernacularList(results)
+    
+    def test_from_match_no_match(self, name = 'Vincent Beauregard'):
+        results = Vernacular.from_match(name)
+        self.assertIsInstance(results, list)
+        
+        # Assert empty list
+        self.assertEqual(len(results), 0)
 
     def test_from_bryoquel_match(self, name = 'Aulacomnium palustre'):
         results = Vernacular.from_bryoquel_match(name)
         self.assertVernacularList(results)
+
+    def test_from_bryoquel_no_vernacular(self, name = 'Aulacomnium'):
+        results = Vernacular.from_bryoquel_match(name)
+        self.assertFalse(results)
+
+    def test_from_bryoquel_no_match(self, name = 'Vincent Beauregard'):
+        results = Vernacular.from_bryoquel_match(name)
+        self.assertIsInstance(results, list)
+        
+        # Assert empty list
+        self.assertEqual(len(results), 0)
     
     def test_from_cdpnq_match(self, name = 'Libellula luctuosa'):
         results = Vernacular.from_cdpnq_match(name)

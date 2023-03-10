@@ -58,20 +58,22 @@ class Vernacular:
     @classmethod
     def from_bryoquel_match(cls, name: str = ''):
         species = bryoquel.match_taxa(name)
-        if species:
-            return [cls(
-                name = species['vernacular_name_fr'],
-                source = 'Bryoquel',
-                language = 'fra',
-                source_taxon_key = species['id']
-            ), cls(
-                name = species['vernacular_name_en'],
-                source = 'Bryoquel',
-                language = 'eng',
-                source_taxon_key = species['id']
-            )]
-        else:
-            return []
+        out = []
+        if species and species['vernacular_name_fr']:
+            out = [*out, cls(
+                    name = species['vernacular_name_fr'],
+                    source = 'Bryoquel',
+                    language = 'fra',
+                    source_taxon_key = species['id']
+                )]
+        if species and species['vernacular_name_en']:
+            out = [*out, cls(
+                    name = species['vernacular_name_en'],
+                    source = 'Bryoquel',
+                    language = 'eng',
+                    source_taxon_key = species['id']
+                )]
+        return out
 
     @classmethod
     def from_cdpnq_match(cls, name: str = ''):
@@ -100,7 +102,7 @@ class Vernacular:
             if m.source_name == 'GBIF Backbone Taxonomy' and not m.is_parent}
         out = []
         [out.extend(cls.from_gbif(gbif_key=k, **match_kwargs)) for k in gbif_keys]
-        [out.extend(cls.from_bryoquel_match(n, **match_kwargs)) for n in name]
+        # [out.extend(cls.from_bryoquel_match(n, **match_kwargs)) for n in name]
         [out.extend(cls.from_cdpnq_match(n, **match_kwargs)) for n in name]
         
         return out

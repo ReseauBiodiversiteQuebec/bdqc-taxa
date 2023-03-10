@@ -202,6 +202,10 @@ out_df = out_df[[
 ]]
 
 # %%
+# Save the dataframe to a csv file
+# out_df.to_csv('bryoquel_12_septembre_2022.csv', index=False)
+
+# %%
 # Save df to a sqlite database `bdqc_taxa\data\bryoquel_12_septembre_2022.sqlite`
 # Required packages
 import sqlite3
