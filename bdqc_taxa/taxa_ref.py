@@ -242,7 +242,7 @@ class TaxaRef:
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
 
-        matched_names = { v.scientific_name for v in out if v.match_type }
+        matched_names = { v.scientific_name for v in out if not v.is_parent }
         if len(matched_names) >= 1:
             [out.extend(cls.from_bryoquel(m_name)) for m_name in matched_names]
             [out.extend(cls.from_cdpnq(m_name)) for m_name in matched_names]

@@ -140,7 +140,13 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(any([ref.source_id == 1002 for ref in refs]))
         self.assertTrue(any([ref.source_name == 'CDPNQ' for ref in refs]))
   
-
+    def test_from_all_sources_cdpnq_synonym(self, name = 'Libellula julia'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        cdpnq_refs = [
+            ref for ref in refs
+            if ref.source_name == 'CDPNQ' and ref.match_type == 'exact'
+        ]
+        self.assertGreater(len(cdpnq_refs), 0)
 
     def test_from_gbif(self, name='Antigone canadensis'):
         refs = taxa_ref.TaxaRef.from_gbif(name)
