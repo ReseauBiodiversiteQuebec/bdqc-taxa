@@ -2,8 +2,6 @@ from . import gbif
 from . import bryoquel
 from . import cdpnq
 from . import taxa_ref
-from inspect import signature
-from typing import Union, List
 
 # ACCEPTED_DATA_SOURCE = [
 #     'Integrated Taxonomic Information System (ITIS)',
@@ -11,11 +9,13 @@ from typing import Union, List
 
 ACCEPTED_LANGUAGE = ['fra', 'eng']
 
-def initcap(sentence):
-    sentence = sentence.lower()
-    return " ".join(
-        [word[0].upper() + word[1:].lower() for word in sentence.split(" ")]
-    )
+def initcap_vernacular(name):
+    capped_words = ['Amérique', 'America', 'Europe', 'Ungava', 'Alléghanys', 'Oregon', 'Virginie', 'Virginia', 'New York', 'Alaska', 'Pennsylvanie', 'Pennsylvania' , 'Canada', 'Inde', 'India', 'Islande', 'Égypte', 'Egypt', 'Pacifique', 'Pacific', 'Atlantique', 'Atlantic', 'Fraser', 'Est', 'Ouest', 'Nord', 'Alep', 'Anadyr', 'Eames', 'Allen', 'Anna', 'Uhler', 'Audubon']
+    out = name[0].upper() + name[1:].lower()
+    for capped_word in capped_words:
+        out = out.replace(capped_word.lower(), capped_word)
+    return out
+
 
 class Vernacular:
     def __init__(self,
@@ -23,11 +23,15 @@ class Vernacular:
                  source: str = '',
                  source_taxon_key: str = '',
                  language: str = ''):
-        for param in signature(self.__init__).parameters:
-            setattr(self, param, eval(param))
+        self._name = name
+        self.source = source
+        self.source_taxon_key = source_taxon_key
         self.language = language.lower()
-        self.name = name.lower()
-    
+
+    @property
+    def name(self):
+        return initcap_vernacular(self._name)
+
     @classmethod
     def from_gbif(cls, gbif_key: int):
         out = []

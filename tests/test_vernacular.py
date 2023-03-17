@@ -1,5 +1,5 @@
 from unittest import TestCase, result
-from bdqc_taxa.vernacular import Vernacular
+from bdqc_taxa.vernacular import Vernacular, initcap_vernacular
 
 class TestVernacular(TestCase):
     def assertVernacularList(self, results):
@@ -83,3 +83,16 @@ class TestVernacular(TestCase):
         results = Vernacular.from_match(name)
         self.assertVernacularList(results)
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
+
+class TestInitcap(TestCase):
+    def test_initcap_vernacular(self, text = 'Vincent Beauregard'):
+        self.assertEqual(initcap_vernacular(text), 'Vincent beauregard')
+    
+    def test_initcap_no_change(self, text = 'Lynx du Canada'):
+        self.assertEqual(initcap_vernacular(text), text)
+
+    def test_initcap_all_caps(self, text = 'LYNX DU CANADA'):
+        self.assertEqual(initcap_vernacular(text), 'Lynx du Canada')
+    
+    def test_initcap_all_lower(self, text = 'millepertuis de fraser'):
+        self.assertEqual(initcap_vernacular(text), 'Millepertuis de Fraser')
