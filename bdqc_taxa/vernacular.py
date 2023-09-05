@@ -11,9 +11,13 @@ ACCEPTED_LANGUAGE = ['fra', 'eng']
 
 def initcap_vernacular(name):
     capped_words = ['Amérique', 'America', 'Europe', 'Ungava', 'Alléghanys', 'Oregon', 'Virginie', 'Virginia', 'New York', 'Alaska', 'Pennsylvanie', 'Pennsylvania' , 'Canada', 'Inde', 'India', 'Islande', 'Égypte', 'Egypt', 'Pacifique', 'Pacific', 'Atlantique', 'Atlantic', 'Fraser', 'Est', 'Ouest', 'Nord', 'Alep', 'Anadyr', 'Eames', 'Allen', 'Anna', 'Uhler', 'Audubon']
+    capped_words_lower = [word.lower() for word in capped_words]
     out = name[0].upper() + name[1:].lower()
-    for capped_word in capped_words:
-        out = out.replace(capped_word.lower(), capped_word)
+    out_list = out.split(' ')
+    for i, word in enumerate(out_list):
+        if word.lower() in capped_words_lower:
+            out_list[i] = out_list[i].capitalize()
+    out = ' '.join(out_list)
     return out
 
 

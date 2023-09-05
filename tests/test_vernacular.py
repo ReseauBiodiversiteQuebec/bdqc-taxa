@@ -84,6 +84,13 @@ class TestVernacular(TestCase):
         self.assertVernacularList(results)
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
 
+    def test_moineau(self, name = 'Passer domesticus'):
+        results = Vernacular.from_match(name)
+        self.assertVernacularList(results)
+        self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
+        # Asser that the vernacular is 'Moineau domestique'
+        self.assertTrue(any([vn.name == 'Moineau domestique' for vn in results]))
+
 class TestInitcap(TestCase):
     def test_initcap_vernacular(self, text = 'Vincent Beauregard'):
         self.assertEqual(initcap_vernacular(text), 'Vincent beauregard')
@@ -96,3 +103,9 @@ class TestInitcap(TestCase):
     
     def test_initcap_all_lower(self, text = 'millepertuis de fraser'):
         self.assertEqual(initcap_vernacular(text), 'Millepertuis de Fraser')
+
+    def test_initcap_nordique(self, text = 'Chauve-souris nordique'):
+        self.assertEqual(initcap_vernacular(text), text)
+
+    def test_initcap_moineau(self, text = 'Moineau domestique'):
+        self.assertEqual(initcap_vernacular(text), text)

@@ -6,3 +6,4 @@ venv*
 dist*
 thunder-tests*
 scratch*
+.env
