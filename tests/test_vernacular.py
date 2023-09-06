@@ -98,6 +98,10 @@ class TestVernacular(TestCase):
         self.assertTrue(any([vn.language == 'eng' for vn in results]))
         self.assertTrue(any([vn.language == 'fra' for vn in results]))
 
+    def test_wikidata_no_fr_aliases(self, name = 'Lasionycteris'):
+        # Assert no error is raised
+        results = Vernacular.from_wikidata_match(name)
+
 class TestInitcap(TestCase):
     def test_initcap_vernacular(self, text = 'Vincent Beauregard'):
         self.assertEqual(initcap_vernacular(text), 'Vincent beauregard')

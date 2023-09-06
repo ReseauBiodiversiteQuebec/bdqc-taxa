@@ -113,8 +113,15 @@ class Vernacular:
 
         # For each language, we only keep the first result that is not a scientific name
         for language in language_dict.keys():
-            name_dicts = [entity['labels'][language]]
-            name_dicts += entity['aliases'][language]
+            try:
+                name_dicts = [entity['labels'][language]]
+            except KeyError:
+                name_dicts = []
+
+            try:
+                name_dicts += entity['aliases'][language]
+            except KeyError:
+                pass
 
             if not name_dicts:
                 continue
