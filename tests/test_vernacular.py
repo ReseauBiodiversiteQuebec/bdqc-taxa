@@ -91,6 +91,13 @@ class TestVernacular(TestCase):
         # Asser that the vernacular is 'Moineau domestique'
         self.assertTrue(any([vn.name == 'Moineau domestique' for vn in results]))
 
+    def test_wikidata_chiroptera(self, name = 'Chiroptera'):
+        results = Vernacular.from_wikidata_match(name)
+        self.assertVernacularList(results)
+        self.assertTrue(any([vn.source == 'Wikidata' for vn in results]))
+        self.assertTrue(any([vn.language == 'eng' for vn in results]))
+        self.assertTrue(any([vn.language == 'fra' for vn in results]))
+
 class TestInitcap(TestCase):
     def test_initcap_vernacular(self, text = 'Vincent Beauregard'):
         self.assertEqual(initcap_vernacular(text), 'Vincent beauregard')

@@ -2,6 +2,7 @@ from . import gbif
 from . import bryoquel
 from . import cdpnq
 from . import taxa_ref
+from . import wikidata
 
 # ACCEPTED_DATA_SOURCE = [
 #     'Integrated Taxonomic Information System (ITIS)',
@@ -99,6 +100,37 @@ class Vernacular:
         
         return out
 
+    @classmethod
+    def from_wikidata_match(cls, name: str = ''):
+        result = wikidata.search_entities(name)[0]
+        entity = wikidata.get_entities(result['id'], languages=['fr', 'en'])
+        out = []
+
+        language_dict = {
+            'fr': 'fra',
+            'en': 'eng'
+        }
+
+        # For each language, we only keep the first result that is not a scientific name
+        for language in language_dict.keys():
+            name_dicts = [entity['labels'][language]]
+            name_dicts += entity['aliases'][language]
+
+            if not name_dicts:
+                continue
+
+            for name_dict in name_dicts:
+                vernacular = cls(
+                    name = name_dict['value'],
+                    source = 'Wikidata',
+                    language = language_dict[language],
+                    source_taxon_key = result['id']
+                )
+                if vernacular.name.lower() != name.lower():
+                    out.append(vernacular)
+                    break
+        
+        return out
 
     @classmethod
     def from_match(cls, name: str = None, **match_kwargs):
@@ -112,5 +144,6 @@ class Vernacular:
         [out.extend(cls.from_gbif(gbif_key=k, **match_kwargs)) for k in gbif_keys]
         # [out.extend(cls.from_bryoquel_match(n, **match_kwargs)) for n in name]
         [out.extend(cls.from_cdpnq_match(n, **match_kwargs)) for n in name]
+        [out.extend(cls.from_wikidata_match(n, **match_kwargs)) for n in name]
         
         return out
