@@ -39,11 +39,13 @@ class Vernacular:
                  source: str = '',
                  source_taxon_key: str = '',
                  language: str = '',
+                 rank: str = None,
                  rank_order: int = 9999):
         self._name = name
         self.source = source
         self.source_taxon_key = source_taxon_key
-        self.language = language.lower()
+        self.language = language.lower() if language else None
+        self.rank = rank.lower() if rank else None
         self.rank_order = rank_order
 
     @property
@@ -62,6 +64,7 @@ class Vernacular:
                     source = result['source'],
                     language = result['language'],
                     source_taxon_key = result['sourceTaxonKey'],
+                    rank = rank,
                     rank_order = rank_order(rank)
                 )
             out.append(vernacular)
@@ -88,6 +91,7 @@ class Vernacular:
                     source = 'Bryoquel',
                     language = 'fra',
                     source_taxon_key = taxa['id'],
+                    rank = taxa['taxon_rank'],
                     rank_order = rank_order(taxa['taxon_rank'])
                 )]
         if taxa and taxa['vernacular_name_en']:
@@ -96,6 +100,7 @@ class Vernacular:
                     source = 'Bryoquel',
                     language = 'eng',
                     source_taxon_key = taxa['id'],
+                    rank = taxa['taxon_rank'],
                     rank_order = rank_order(taxa['taxon_rank'])
                 )]
         return out
@@ -112,6 +117,7 @@ class Vernacular:
                 source = 'CDPNQ',
                 language = 'fra',
                 source_taxon_key = taxa['name'],
+                rank = taxa['rank'],
                 rank_order = rank_order(taxa['rank'])
             ))
         
@@ -153,6 +159,7 @@ class Vernacular:
                     source = 'Wikidata',
                     language = LANGUAGE_DICT[language],
                     source_taxon_key = result['id'],
+                    rank = rank,
                     rank_order = rank_order(rank)
                 )
                 if vernacular.name.lower() != name.lower():
