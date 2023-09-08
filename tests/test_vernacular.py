@@ -5,10 +5,17 @@ class TestVernacular(TestCase):
     def assertVernacularList(self, results):
         self.assertTrue(results.__len__() >= 1)
         self.assertTrue(all([vn.language in ['fra', 'eng'] for vn in results]))
+        for result in results:
+            self.assertNotEqual(result.rank_order, 9999)
 
-    def test_from_gbif(self, gbif_key = 2474953):
-        results = Vernacular.from_gbif(gbif_key)
+    def test_from_gbif(self, gbif_key = 2474953, rank = 'species'):
+        results = Vernacular.from_gbif(gbif_key, rank)
         self.assertVernacularList(results)
+
+    def test_from_gbif_no_rank(self, gbif_key = 2474953):
+        results = Vernacular.from_gbif(gbif_key)
+        for result in results:
+            self.assertEqual(result.rank_order, 9999)
     
     def test_from_gbif_non_unique(self, gbif_key = 2474953):
         results = Vernacular.from_gbif(gbif_key)
@@ -16,14 +23,13 @@ class TestVernacular(TestCase):
         self.assertEqual(len(results), len(unique_results))
 
 
-    def test_from_gbif_invalid_key(self, gbif_key = 9036008):
-        results = Vernacular.from_gbif(gbif_key)
+    def test_from_gbif_invalid_key(self, gbif_key = 9036008, rank = 'species'):
+        results = Vernacular.from_gbif(gbif_key, rank)
         self.assertVernacularList(results)
 
     def test_from_gbif_match(self, name = 'Cyanocitta cristata'):
         results = Vernacular.from_gbif_match(name)
         self.assertVernacularList(results)
-
     
     def test_from_gbif_match_no_match(self, name = 'Vincent Beauregard'):
         results = Vernacular.from_gbif_match(name)
@@ -52,6 +58,8 @@ class TestVernacular(TestCase):
     def test_from_bryoquel_match(self, name = 'Aulacomnium palustre'):
         results = Vernacular.from_bryoquel_match(name)
         self.assertVernacularList(results)
+        for result in results:
+            self.assertNotEqual(result.rank_order, 9999)
 
     def test_from_bryoquel_no_vernacular(self, name = 'Aulacomnium'):
         results = Vernacular.from_bryoquel_match(name)
@@ -69,27 +77,47 @@ class TestVernacular(TestCase):
         self.assertVernacularList(results)
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
 
-    def test_get_cdpnq(self, name = 'Libellula luctuosa'):
-        results = Vernacular.from_cdpnq_match(name)
-        self.assertVernacularList(results)
-        self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
-    
-    def test_get_cdpnq_no_match(self, name = 'Vincent Beauregard'):
+    def test_from_cdpnq_no_match(self, name = 'Vincent Beauregard'):
         results = Vernacular.from_cdpnq_match(name)
         self.assertFalse(results)
 
     # Special case test: Synonym scientific name is not in CDPNQ : Bug #5
-    def test_synonym_cdpnq(self, name = 'Libellula julia'):
-        results = Vernacular.from_match(name)
-        self.assertVernacularList(results)
-        self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
+    # Removed. We no longer expect Vernacular to return vernacular names for
+    # synonyms.
+    # def test_from_match_synonym_cdpnq(self, name = 'Libellula julia'):
+    #     results = Vernacular.from_match(name)
+    #     self.assertVernacularList(results)
+    #     self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
 
-    def test_moineau(self, name = 'Passer domesticus'):
+    def test_from_match_bad_cap(self, name = 'Passer domesticus'):
         results = Vernacular.from_match(name)
         self.assertVernacularList(results)
         self.assertTrue(any([vn.source == 'CDPNQ' for vn in results]))
         # Asser that the vernacular is 'Moineau domestique'
         self.assertTrue(any([vn.name == 'Moineau domestique' for vn in results]))
+
+    def test_wikidata_chiroptera(self, name = 'Chiroptera', rank = 'order'):	
+        results = Vernacular.from_wikidata_match(name, rank = rank)
+        self.assertVernacularList(results)
+        self.assertTrue(any([vn.source == 'Wikidata' for vn in results]))
+        self.assertTrue(any([vn.language == 'eng' for vn in results]))
+        self.assertTrue(any([vn.language == 'fra' for vn in results]))
+
+    def test_wikidata_no_rank(self, name = 'Chiroptera'):
+        results = Vernacular.from_wikidata_match(name)
+        for result in results:
+            self.assertEqual(result.rank_order, 9999)
+
+    def test_wikidata_no_fr_aliases(self, name = 'Lasionycteris'):
+        # Assert no error is raised
+        results = Vernacular.from_wikidata_match(name)
+
+    def test_wikidata_no_match(self, name = 'Vincent Beauregard'):
+        results = Vernacular.from_wikidata_match(name)
+        self.assertIsInstance(results, list)
+        
+        # Assert empty list
+        self.assertEqual(len(results), 0)
 
 class TestInitcap(TestCase):
     def test_initcap_vernacular(self, text = 'Vincent Beauregard'):
