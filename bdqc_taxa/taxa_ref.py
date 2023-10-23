@@ -183,6 +183,11 @@ class TaxaRef:
         # Create rows for valid taxon
         classification_srids = [
             result[f'{k}Key'] for k in GBIF_RANKS if k in result.keys()]
+        
+        try:
+            rank_order = GBIF_RANKS.index(result['rank'].lower())
+        except ValueError:
+            rank_order = None
 
         out_kwargs = {
             "source_id": GBIF_SOURCE_KEY,
@@ -191,8 +196,7 @@ class TaxaRef:
             "scientific_name": result["canonicalName"],
             "authorship": strip_authorship(result['authorship']),
             "rank": result['rank'].lower(),
-            "rank_order": [i for i, rank in enumerate(GBIF_RANKS)
-                if rank == result['rank'].lower()][0],
+            "rank_order": rank_order,
             "classification_srids": classification_srids,
             "valid": True,
             "valid_srid": result["key"],
@@ -242,6 +246,8 @@ class TaxaRef:
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
 
+        # Matched names refers to the names that were matched including
+        # synonyms and valid names
         matched_names = { v.scientific_name for v in out if not v.is_parent }
         if len(matched_names) >= 1:
             [out.extend(cls.from_bryoquel(m_name)) for m_name in matched_names]
