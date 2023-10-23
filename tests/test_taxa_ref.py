@@ -119,7 +119,7 @@ class TestTaxaRef(unittest.TestCase):
                 and ref.authorship == ref.scientific_name
         ]
         self.assertFalse(bad_refs)
-
+        
     def test_from_cdpnq_no_match(self, name='Vincent Beauregard'):
         refs = taxa_ref.TaxaRef.from_cdpnq(name)
         self.assertFalse(refs)
@@ -147,6 +147,11 @@ class TestTaxaRef(unittest.TestCase):
             if ref.source_name == 'CDPNQ' and ref.match_type == 'exact'
         ]
         self.assertGreater(len(cdpnq_refs), 0)
+
+    # Non-regression test for bug for 'Clupea harengus harengus'
+    def test_from_all_sources_bug(self, name = 'Clupea harengus harengus'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        self.assertTrue(len(refs) > 1)
 
     def test_from_gbif(self, name='Antigone canadensis'):
         refs = taxa_ref.TaxaRef.from_gbif(name)
