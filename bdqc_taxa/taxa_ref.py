@@ -158,6 +158,17 @@ class TaxaRef:
 
         out = []
 
+        # Compute values for taxa_ref rows
+        try:
+            result['rank_order'] = GBIF_RANKS.index(result['rank'].lower())
+        except ValueError:
+            result['rank_order'] = None
+
+        if match_species["matchType"].lower() == "higherrank":
+            is_parent = True
+        else:
+            is_parent = False
+        
         # Create row for invalid requested taxon
         if not is_valid:
             out_kwargs = {
@@ -175,7 +186,7 @@ class TaxaRef:
                 "valid": is_valid,
                 "valid_srid": result["acceptedKey"],
                 "match_type": match_species["matchType"].lower(),
-                "is_parent": False
+                "is_parent": is_parent
             }
             out.append(cls(**out_kwargs))
             result = gbif.Species.get(match_species['acceptedUsageKey'])
@@ -201,7 +212,7 @@ class TaxaRef:
             "valid": True,
             "valid_srid": result["key"],
             "match_type": match_species["matchType"].lower(),
-            "is_parent": False
+            "is_parent": is_parent
         }
         out.append(cls(**out_kwargs))
 

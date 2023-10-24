@@ -228,6 +228,16 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(len(refs) > 1)
         self.assertTrue(any([ref.rank == 'subspecies' for ref in refs]))
 
+    # Case where GBIF returns a higherrank match that should be classified as a parent
+    def test_from_gbif_bug_higher_rank(self, name='Nereis'):
+        refs = taxa_ref.TaxaRef.from_gbif(name)
+        higherrank_refs = [
+            ref for ref in refs
+            if ref.match_type == 'higherrank'
+        ]
+        self.assertTrue(len(higherrank_refs) > 0)
+        self.assertTrue(all([ref.is_parent == True for ref in higherrank_refs]))
+
     def test_from_all_sources(self, name='Acer saccharum'):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         self.assertTrue(len(refs) > 1)
