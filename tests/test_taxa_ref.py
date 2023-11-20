@@ -361,6 +361,61 @@ class TestComplex(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         self.assertTrue(len(refs) >= 1)
 
+    # Test case for Salix matching for a genus of Animalia and a genus of Plantae
+    def test_from_all_sources_parent_taxa_salix(self, name='Salix', parent_taxa = 'Plantae'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
+        
+        # Records with rank == 'kingdom'
+        kingdom_name = {ref.scientific_name for ref in refs if ref.rank == 'kingdom'}
+
+        # Assert only one kingdom name
+        self.assertEqual(len(kingdom_name), 1)
+
+    # Test case for Rangifer tarandus where no existing conflict is known
+    def test_from_all_sources_parent_taxa_rangifer(self, name='Rangifer tarandus', parent_taxa = 'Mammalia'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
+        
+        # Records with rank == 'kingdom'
+        kingdom_name = {ref.scientific_name for ref in refs if ref.rank == 'kingdom'}
+
+        # Assert only one kingdom name
+        self.assertEqual(len(kingdom_name), 1)
+
+        # Assert CDPNQ is in the sources
+        self.assertTrue(any([ref.source_name == 'CDPNQ' for ref in refs]))        
+        
+
+    # Test case for bad parent_taxa
+    def test_from_all_sources_parent_taxa_rangifer_bad_match(self, name='Rangifer tarandus', parent_taxa = 'Plantae'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
+        
+        # Records with rank == 'kingdom'
+        kingdom_name = {ref.scientific_name for ref in refs if ref.rank == 'kingdom'}
+
+        # Assert no kingdom name
+        self.assertEqual(len(kingdom_name), 0)
+
+
+    # Test case using parent_taxa with complex
+    def test_from_all_sources_parent_taxa_complex(self, name='Lasiurus cinereus|Lasionycteris noctivagans', parent_taxa = 'Chiroptera'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
+        self.assertTrue(len(refs) > 1)
+
+        is_match_complex = [ref.match_type == "complex" for ref in refs]
+        self.assertTrue(
+            any(is_match_complex) and not all(is_match_complex)
+        )
+        is_common_parent = [ref.match_type ==
+                            "complex_closest_parent" for ref in refs]
+        self.assertTrue(
+            any(is_common_parent) and not all(is_common_parent)
+        )
+
+        distinct_srid = {(r.source_id, r.source_record_id) for r in refs}
+        self.assertTrue(
+            len(refs) == len(distinct_srid)
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

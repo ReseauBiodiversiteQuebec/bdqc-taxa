@@ -251,9 +251,56 @@ class TaxaRef:
             out.append(cls(**out_kwargs))                
         
         return out
+    
+    @classmethod
+    def _prune_parent_taxa(cls, taxa_ref_list: List[TaxaRef], parent_taxa: str):
+        out = []
+        # List of ids of taxa_ref rows to keep corresponding to the parent taxa
+        grand_parents_ids = []
+        parent_ids = []
+        keep_ids = []
+        keep_names = []
+        for ref in taxa_ref_list:
+            if ref.scientific_name == parent_taxa:
+                # Parent ids to search for children later
+                parent_ids.append(ref.source_record_id)
+
+                # Keep the grand parents of the parent taxa
+                grand_parents_ids.extend(ref.classification_srids[:-1])
+
+                # Keep names
+                keep_names.append(ref.scientific_name)
+
+        # Search for the children and grand parents
+        for ref in taxa_ref_list:
+            # Search for children
+            any_parent = any([srid in ref.classification_srids for srid in parent_ids if ref.classification_srids])
+            if any_parent:
+                # Keep the children of the parent taxa
+                keep_ids.append(ref.source_record_id)
+                keep_names.append(ref.scientific_name)
+
+            # Search for grand parents
+            if ref.source_record_id in grand_parents_ids:
+                # Keep the grand parents of the parent taxa
+                keep_ids.append(ref.source_record_id)
+                keep_names.append(ref.scientific_name)
+
+        # Search for ref records without classification_srids to keep using names (ie from CDPNQ or Bryoquel)
+        for ref in taxa_ref_list:
+            if ref.scientific_name in keep_names:
+                keep_ids.append(ref.source_record_id)
+
+        # Remove duplicates
+        keep_ids = list(set(keep_ids))
+
+        # Keep only the rows with ids in keep_ids
+        out = [ref for ref in taxa_ref_list if ref.source_record_id in keep_ids]
+
+        return out
 
     @classmethod
-    def from_all_sources(cls, name: str, authorship: str = None):
+    def from_all_sources(cls, name: str, authorship: str = None, parent_taxa: str = None):
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
 
@@ -268,6 +315,11 @@ class TaxaRef:
             out.extend(cls.from_cdpnq(name))
         if is_complex(name):
             out = cls.set_complex_match_type(out)
+
+        # Prune for parent taxa
+        if parent_taxa:
+            out = cls._prune_parent_taxa(out, parent_taxa)
+
         return out
 
     @classmethod

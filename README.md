@@ -47,6 +47,19 @@ results = TaxaRef.from_all_sources('Canis lupus')
 When the taxon related to an observation is complex, such as multiple organism are identified for the same observation(Species 1 | Species 2 | Species 3), a single observed taxonomic entry is injected as such. References will be obtained for each single organism listed by the complex and all related parents. References matched from complex observed taxons are identified as such and can then be included or discarded from queries performed by the user. Common parent taxon are identified as such and can be used to query complex observed taxons.
 
 
+### Conflicts
+
+Certain scientific names corresponds to different organism within two entirely different branches of the tree of life. For example, the scientific name *Salix* corresponds to the genus of willows in the plant kingdom and to a genus of tunicates in the animal kingdom. To avoid matching for such case, the user can specify a parent taxa name to restrict the results to the branch containing the parent taxa. For example, the user can specify the parent taxa name *Plantae* to restrict the results to the plant kingdom.
+
+The `parent_taxa` argument is optional. If not specified, the module will return all results for the given scientific name.
+
+```python
+from bdqc_taxa.taxa_ref import TaxaRef
+
+results = TaxaRef.from_all_sources('Salix', parent_taxa='Plantae')
+```
+
+
 ## Find vernacular names for a scientific name
 
 The `taxa_vernacular` module is used to query the reference taxa sources and parse their return using fuzzy matching in english and french.
@@ -66,6 +79,7 @@ results = Vernacular.from_match('Canis lupus')
 ### Synonyms
 
 For certain sources, such as CDPNQ, the vernacular name will be returned for accepted synonyms. If observed scientific name differs, the user should do multiple queries for each known synonyms.
+
 
 ## Sources
 
