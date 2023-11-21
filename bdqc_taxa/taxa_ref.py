@@ -314,7 +314,10 @@ class TaxaRef:
         # Keep only the rows with ids in keep_ids
         out = [ref for ref in taxa_ref_list if ref.source_record_id in keep_ids]
 
-        return out
+        # Remove out duplicates from source_record_id
+        out = {ref.source_record_id: ref for ref in out}.values()
+
+        return list(out)
 
     @classmethod
     def from_all_sources(cls, name: str, authorship: str = None, parent_taxa: str = None):

@@ -361,6 +361,7 @@ class TestComplex(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         self.assertTrue(len(refs) >= 1)
 
+class TestParent(unittest.TestCase):
     # Test case for Salix matching for a genus of Animalia and a genus of Plantae
     def test_from_all_sources_parent_taxa_salix(self, name='Salix', parent_taxa = 'Plantae'):
         refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
