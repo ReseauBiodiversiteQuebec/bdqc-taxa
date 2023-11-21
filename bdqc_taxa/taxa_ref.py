@@ -19,6 +19,33 @@ GBIF_RANKS = ['kingdom', 'phylum', 'class', 'order', 'family',
 
 DATA_SOURCES = [1, 3, 147] # COL, ITIS, VASCAN
 
+SOURCES_PARENT_CLASSIFICATION_SRIDS = [
+    # Only vascular plants
+    {
+        'source_name': 'VASCAN',
+        'ranks': ['kingdom', 'phylum'],
+        'scienfitic_name': ['Plantae', 'Tracheophyta']
+    },
+    # Only Bryoquel
+    {
+        'source_name': 'Bryoquel',
+        'ranks': ['kingdom', 'phylum'],
+        'scienfitic_name': ['Plantae', 'Bryophyta']
+    },
+    # Only CDPNQ mammals
+    {
+        'source_name': 'CDPNQ',
+        'ranks': ['kingdom', 'phylum', 'class'],
+        'scienfitic_name': ['Animalia', 'Chordata', 'Mammalia']
+    },
+    # Only CDPNQ odonata
+    {
+        'source_name': 'CDPNQ',
+        'ranks': ['kingdom', 'phylum', 'class', 'order'],
+        'scienfitic_name': ['Animalia', 'Arthropoda', 'Insecta', 'Odonata']
+    }
+]
+
 class TaxaRef:
     def __init__(self,
                  scientific_name: str = '',
@@ -256,43 +283,33 @@ class TaxaRef:
     def _prune_parent_taxa(cls, taxa_ref_list: List[TaxaRef], parent_taxa: str):
         out = []
         # List of ids of taxa_ref rows to keep corresponding to the parent taxa
-        grand_parents_ids = []
-        parent_ids = []
-        keep_ids = []
-        keep_names = []
+        parent_srids = []
+        keep_ids = set()
+
+        # Find branches with parent_srids
         for ref in taxa_ref_list:
             if ref.scientific_name == parent_taxa:
-                # Parent ids to search for children later
-                parent_ids.append(ref.source_record_id)
+                # Extend set of parent_srids
+                parent_srids.append(ref.source_record_id)
 
-                # Keep the grand parents of the parent taxa
-                grand_parents_ids.extend(ref.classification_srids[:-1])
+                # Extend grand_parent_srids
+                keep_ids.update(ref.classification_srids[:-1])
 
-                # Keep names
-                keep_names.append(ref.scientific_name)
 
-        # Search for the children and grand parents
+        # Find whole branches with parents srids
         for ref in taxa_ref_list:
-            # Search for children
-            any_parent = any([srid in ref.classification_srids for srid in parent_ids if ref.classification_srids])
-            if any_parent:
-                # Keep the children of the parent taxa
-                keep_ids.append(ref.source_record_id)
-                keep_names.append(ref.scientific_name)
+            # Keep all nodes in branches with parent_srids and add to keep_names
+            if any([srid in ref.classification_srids for srid in parent_srids if ref.classification_srids]):
+                keep_ids.update(ref.classification_srids)
 
-            # Search for grand parents
-            if ref.source_record_id in grand_parents_ids:
-                # Keep the grand parents of the parent taxa
-                keep_ids.append(ref.source_record_id)
-                keep_names.append(ref.scientific_name)
-
-        # Search for ref records without classification_srids to keep using names (ie from CDPNQ or Bryoquel)
+        # Special cases for sources without whole branch starting from kingdom
         for ref in taxa_ref_list:
-            if ref.scientific_name in keep_names:
-                keep_ids.append(ref.source_record_id)
-
-        # Remove duplicates
-        keep_ids = list(set(keep_ids))
+            for source in SOURCES_PARENT_CLASSIFICATION_SRIDS:
+                # Check if parent is listed for sources without whole branch
+                if ref.source_name == source['source_name'] and \
+                        parent_taxa in source['scienfitic_name']:
+                    # Add ref to keep_ids
+                    keep_ids.update([ref.source_record_id])
 
         # Keep only the rows with ids in keep_ids
         out = [ref for ref in taxa_ref_list if ref.source_record_id in keep_ids]

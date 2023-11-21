@@ -371,6 +371,12 @@ class TestComplex(unittest.TestCase):
         # Assert only one kingdom name
         self.assertEqual(len(kingdom_name), 1)
 
+        # Assert any is genus
+        self.assertTrue(any([ref.rank == 'genus' for ref in refs]))
+
+        # Assert any is from VASCAN
+        self.assertTrue(any([ref.source_name == 'VASCAN' for ref in refs]))
+
     # Test case for Rangifer tarandus where no existing conflict is known
     def test_from_all_sources_parent_taxa_rangifer(self, name='Rangifer tarandus', parent_taxa = 'Mammalia'):
         refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
@@ -388,16 +394,23 @@ class TestComplex(unittest.TestCase):
     # Test case for bad parent_taxa
     def test_from_all_sources_parent_taxa_rangifer_bad_match(self, name='Rangifer tarandus', parent_taxa = 'Plantae'):
         refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
-        
-        # Records with rank == 'kingdom'
-        kingdom_name = {ref.scientific_name for ref in refs if ref.rank == 'kingdom'}
 
-        # Assert no kingdom name
-        self.assertEqual(len(kingdom_name), 0)
+        # Assert no refs
+        self.assertFalse(refs)
+
+
+    # Bug : Bad match are kept at the match level
+    def test_from_all_sources_parent_taxa_salix_animalia(self, name='Salix', parent_taxa = 'Animalia'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
+
+        # Assert Only one match at the species level for Catalogue of Life
+        col_genus_refs = [ref for ref in refs if ref.source_name == 'Catalogue of Life' and ref.rank == 'genus']
+        self.assertEqual(len(col_genus_refs), 1)
+
 
 
     # Test case using parent_taxa with complex
-    def test_from_all_sources_parent_taxa_complex(self, name='Lasiurus cinereus|Lasionycteris noctivagans', parent_taxa = 'Chiroptera'):
+    def test_from_all_sources_parent_taxa_complex(self, name='Lasiurus cinereus|Lasionycteris noctivagans', parent_taxa = 'Mammalia'):
         refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa = parent_taxa)
         self.assertTrue(len(refs) > 1)
 
@@ -415,6 +428,9 @@ class TestComplex(unittest.TestCase):
         self.assertTrue(
             len(refs) == len(distinct_srid)
         )
+
+        # Assert any ref is from CDPNQ
+        self.assertTrue(any([ref.source_name == 'CDPNQ' for ref in refs]))
 
 
 if __name__ == '__main__':

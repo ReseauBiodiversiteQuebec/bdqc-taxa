@@ -51,6 +51,11 @@ When the taxon related to an observation is complex, such as multiple organism a
 
 Certain scientific names corresponds to different organism within two entirely different branches of the tree of life. For example, the scientific name *Salix* corresponds to the genus of willows in the plant kingdom and to a genus of tunicates in the animal kingdom. To avoid matching for such case, the user can specify a parent taxa name to restrict the results to the branch containing the parent taxa. For example, the user can specify the parent taxa name *Plantae* to restrict the results to the plant kingdom.
 
+> **Important**
+> All sources might be match at least using `kingdom` or `phylum` level parent taxa name. However, only some sources make available the whole taxa hierarchy. Filtering results using `parent_taxa` with other ranks might not return any results for certain sources (e.g. Bryoquel, VASCAN, CDPNQ).
+>
+> ***We thus HIGHLY recommend to use `parent_taxa` with `kingdom` or `phylum` level parent taxa name.***
+
 The `parent_taxa` argument is optional. If not specified, the module will return all results for the given scientific name.
 
 ```python
