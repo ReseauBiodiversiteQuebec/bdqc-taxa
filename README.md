@@ -101,7 +101,7 @@ Wrapper functions to query the sources using either api or the sqlite database a
 
 ## Custom sources
 
-These tables containts the custom sources used by the `taxa_ref` module. They are implemented in the `custom_sources` sqlite database. The database is located in the `bdqc_taxa` package directory. Full-text search is implemented for the sqlite database using the `FTS5` extension. 
+These tables containts the custom sources used by the `taxa_ref` module. They are implemented in the `custom_sources` sqlite database. The database is located in the `bdqc_taxa` package directory. Only exact matches are returned for the custom sources. 
 
 ### TABLE bryoquel
 

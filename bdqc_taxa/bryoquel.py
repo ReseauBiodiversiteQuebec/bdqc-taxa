@@ -49,14 +49,11 @@ def match_taxa(species) -> dict:
     
     # Get the species name
     species = species.strip()
-    
-    # Full text match with FTS5
-    # See https://www.sqlite.org/fts5.html
 
     c.execute('''
     SELECT bryoquel.* FROM bryoquel
     JOIN bryoquel_fts ON bryoquel_fts.scientific_name = bryoquel.scientific_name
-    WHERE bryoquel_fts MATCH ?
+    WHERE bryoquel_fts LIKE ?
     ORDER BY rank
     LIMIT 1
     ''', (f'"{species}"',))
