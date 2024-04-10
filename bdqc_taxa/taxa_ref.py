@@ -315,9 +315,19 @@ class TaxaRef:
         out = [ref for ref in taxa_ref_list if ref.source_record_id in keep_ids]
 
         # Remove out duplicates from source_record_id
-        out = {ref.source_record_id: ref for ref in out}.values()
-
-        return list(out)
+        out_dict = {}
+        for ref in out:
+            # Populate out_dict
+            if ref.source_record_id not in out_dict:
+                out_dict[ref.source_record_id] = ref
+            # Replace entry in out_dict for a same srid if its match_type is `exact`
+            elif ref.match_type == 'exact':
+                out_dict[ref.source_record_id] = ref
+        
+        # Extract values from the dictionary
+        out = list(out_dict.values())
+        
+        return out
 
     @classmethod
     def from_all_sources(cls, name: str, authorship: str = None, parent_taxa: str = None):
@@ -339,7 +349,19 @@ class TaxaRef:
         # Prune for parent taxa
         if parent_taxa:
             out = cls._prune_parent_taxa(out, parent_taxa)
-
+        else:
+            out_dict = {}
+            for ref in out:
+                # Populate out_dict
+                if ref.source_record_id not in out_dict:
+                    out_dict[ref.source_record_id] = ref
+                # Replace entry in out_dict for a same srid if its match_type is `exact`
+                elif ref.match_type == 'exact':
+                    out_dict[ref.source_record_id] = ref
+        
+            # Extract values from the dictionary
+            out = list(out_dict.values())
+            
         return out
 
     @classmethod
