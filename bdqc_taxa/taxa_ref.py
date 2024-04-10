@@ -317,8 +317,10 @@ class TaxaRef:
         # Remove out duplicates from source_record_id
         out_dict = {}
         for ref in out:
+            # Populate out_dict
             if ref.source_record_id not in out_dict:
                 out_dict[ref.source_record_id] = ref
+            # Replace entry in out_dict for a same srid if its match_type is `exact`
             elif ref.match_type == 'exact':
                 out_dict[ref.source_record_id] = ref
         
@@ -350,8 +352,10 @@ class TaxaRef:
         else:
             out_dict = {}
             for ref in out:
+                # Populate out_dict
                 if ref.source_record_id not in out_dict:
                     out_dict[ref.source_record_id] = ref
+                # Replace entry in out_dict for a same srid if its match_type is `exact`
                 elif ref.match_type == 'exact':
                     out_dict[ref.source_record_id] = ref
         
