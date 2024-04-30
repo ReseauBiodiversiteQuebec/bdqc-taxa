@@ -77,8 +77,8 @@ Description:
 Columns:
     The file contains a pandas dataframe with the following columns:
     taxa_name: Scientific name of the taxon
-    taxa_rank: Taxon rank
     vernacular_fr: French vernacular name of the taxon
+    taxa_rank: Taxon rank
     Embranchement: Phylum
     Classe: Class
     Ordre: Order
