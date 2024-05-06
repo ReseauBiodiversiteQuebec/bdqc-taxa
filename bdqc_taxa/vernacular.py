@@ -1,6 +1,7 @@
 from . import gbif
 from . import bryoquel
 from . import cdpnq
+from . import eliso
 from . import taxa_ref
 from . import wikidata
 
@@ -122,6 +123,24 @@ class Vernacular:
             ))
         
         return out
+    
+    @classmethod
+    def from_eliso_match(cls, name: str = ''):
+        matched_vernacular = eliso.match_taxa(name)
+        if not matched_vernacular:
+            return []
+        out = []
+        for taxa in matched_vernacular:
+            out.append(cls(
+                name = taxa['vernacular_fr'],
+                source = 'Eliso',
+                language = 'fra',
+                source_taxon_key = taxa['taxa_name'],
+                rank = taxa['taxa_rank'],
+                rank_order = rank_order(taxa['taxa_rank'])
+            ))
+        
+        return out
 
     @classmethod
     def from_wikidata_match(cls, name: str = '', rank: str = None):
@@ -178,5 +197,6 @@ class Vernacular:
 
         out = [*out, *cls.from_bryoquel_match(name)]
         out = [*out, *cls.from_cdpnq_match(name)]
+        out = [*out, *cls.from_eliso_match(name)]
         out = [*out, *cls.from_wikidata_match(name, rank = rank)]
         return out

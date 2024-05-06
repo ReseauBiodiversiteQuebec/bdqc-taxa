@@ -64,3 +64,27 @@ Columns:
 
 Notes:
     The entries have no recorded author.
+
+
+TABLE eliso_invertebrates
+
+Description: 
+    This file was generated on 2024-04-23 from Eliso's Répertoire des noms d’invertébrés du Québec (2022) file.
+    The file was downloaded from https://www.eliso.ca/documents on 2024-04-23.
+    The file was parsed using the script `scripts/make_eliso.py`.
+
+Columns:
+    The file contains a pandas dataframe with the following columns:
+    taxa_name: Scientific name of the taxon
+    vernacular_fr: French vernacular name of the taxon
+    taxa_rank: Taxon rank
+    Embranchement: Phylum
+    Classe: Class
+    Ordre: Order
+    Famille: Family
+    Genre: Genus
+    Espèce: Species
+
+Notes:
+    The entries have no recorded author.
+    The entries may contain comments in parentheses that are kept as is but may prevent matching.

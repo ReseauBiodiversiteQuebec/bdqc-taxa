@@ -92,11 +92,12 @@ For certain sources, such as CDPNQ, the vernacular name will be returned for acc
 * GBIF : Retrieve the scientific name and the taxonomic hierarchy of a given name against the GBIF backbone taxonomy. Query is performed against the GBIF API.
 * Bryoquel : Implemented by the *Biodiversité Québec* team, this source is used to retrieve the scientific name and the taxonomic hierarchy of a given name against the Bryophytes of Québec. Query is performed against the the `custom_sources` sqlite database implemented by the *Biodiversité Québec* team using the Bryoquel excel file. See below for more details.
 * CDPNQ : Implemented by the *Biodiversité Québec* team, this source is used to retrieve the scientific name and the taxonomic hierarchy of a given name against the list for the *Centre de données sur le patrimoine naturel du Québec*. Query is performed against the the `custom_sources` sqlite database implemented by the *Biodiversité Québec* team using the CDPNQ excel files. See below for more details.
+* Eliso : Implemented by the *Biodiversité Québec* team, this source is used to retrieve the scientific name and the taxonomic hierarchy of a given name against the list for the *Eliso's Répertoire des noms d’invertébrés du Québec (2022) file*. Query is performed against the the `custom_sources` sqlite database implemented by the *Biodiversité Québec* team using Elio's excel files. See below for more details.
 * Wikidata : Retrieve the vernacular name of a given scientific name against Wikidata. Query is performed against the Wikidata API.
 
 ### Modules
 
-Wrapper functions to query the sources using either api or the sqlite database are individually implemented in modules `gbif`, `global_names`, `bryoquel`, `cdpnq` and `wikidata`. 
+Wrapper functions to query the sources using either api or the sqlite database are individually implemented in modules `gbif`, `global_names`, `bryoquel`, `cdpnq`, `eliso` and `wikidata`. 
 
 
 ## Custom sources
@@ -165,3 +166,28 @@ These tables containts the custom sources used by the `taxa_ref` module. They ar
 
 Notes:
     The entries have no recorded author.
+
+
+### TABLE eliso_invertebrates
+
+#### Description: 
+    This file was generated on 2024-04-23 from Eliso's Répertoire des noms d’invertébrés du Québec (2022) file.
+    The file was downloaded from https://www.eliso.ca/documents on 2024-04-23.
+    The last version of the bryoquel xlsx file is from 2022-11-18.
+    The file was parsed using the script `scripts/make_eliso.py`.
+
+#### Columns:
+    The file contains a pandas dataframe with the following columns:
+    taxa_name: Scientific name of the taxon
+    vernacular_fr: French vernacular name of the taxon
+    taxa_rank: Taxon rank
+    Embranchement: Phylum
+    Classe: Class
+    Ordre: Order
+    Famille: Family
+    Genre: Genus
+    Espèce: Species\n
+
+Notes:
+    The entries have no recorded author.
+    The entries may contain comments in parentheses that are kept as is but may prevent matching.
