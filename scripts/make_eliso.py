@@ -149,7 +149,6 @@ readme = """
 Description: 
     This file was generated on 2024-04-23 from Eliso's Répertoire des noms d’invertébrés du Québec (2022) file.
     The file was downloaded from https://www.eliso.ca/documents on 2024-04-23.
-    The last version of the bryoquel xlsx file is from 2022-11-18.
     The file was parsed using the script `scripts/make_eliso.py`.\n
 
 Columns:
