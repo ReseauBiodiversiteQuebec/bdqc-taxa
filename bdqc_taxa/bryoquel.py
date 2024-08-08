@@ -53,7 +53,7 @@ def match_taxa(species) -> dict:
     c.execute('''
     SELECT bryoquel.* FROM bryoquel
     JOIN bryoquel_fts ON bryoquel_fts.scientific_name = bryoquel.scientific_name
-    WHERE bryoquel_fts MATCH ?
+    WHERE bryoquel_fts LIKE ?
     ORDER BY rank
     LIMIT 1
     ''', (f'"{species}"',))

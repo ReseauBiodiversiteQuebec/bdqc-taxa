@@ -54,7 +54,7 @@ def match_taxa_odonates(name) -> dict:
     c.execute('''
     SELECT cdpnq_odonates.* FROM cdpnq_odonates
     JOIN cdpnq_odonates_fts ON cdpnq_odonates_fts.name = cdpnq_odonates.name
-    WHERE cdpnq_odonates_fts MATCH ?
+    WHERE cdpnq_odonates_fts LIKE ?
     ORDER BY rank
     ''', (f'"{name}"',))
 
@@ -109,7 +109,7 @@ def match_taxa_vertebrates(name) -> dict:
     c.execute('''
     SELECT cdpnq_vertebrates.* FROM cdpnq_vertebrates
     JOIN cdpnq_vertebrates_fts ON cdpnq_vertebrates_fts.name = cdpnq_vertebrates.name
-    WHERE cdpnq_vertebrates_fts MATCH ?
+    WHERE cdpnq_vertebrates_fts LIKE ?
     ORDER BY rank
     ''', (f'"{name}"',))
 
