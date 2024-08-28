@@ -16,11 +16,11 @@ __uri__ = "https://github.com/ReseauBiodiversiteQuebec/bdqc-taxa"
 _version = OrderedDict(
     major = 0,
     minor = 15,
-    patch = 0
+    patch = 1
 )
 __version__ = ".".join([str(v) for v in _version.values()])
 
 __author__ = "Vincent Beauregard"
 __email__ = "vincent.beauregard@usherbrooke.ca"
 
-__copyright__ = "2021-2023 %s" % __author__
+__copyright__ = "2021-2024 %s" % __author__
