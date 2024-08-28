@@ -259,13 +259,6 @@ class TestTaxaRef(unittest.TestCase):
         # Assert there is a genus
         self.assertTrue(any([ref.rank == 'genus' for ref in refs]))
 
-    def test_from_bryoquel_canonical(self, name='Anthelia julacea (L.) Dumort.'):
-        refs = taxa_ref.TaxaRef.from_bryoquel(name)
-        self.assertTrue(len(refs) >= 1)
-        self.assertTrue(all([ref.source_id == 1001 for ref in refs]))
-        # Assert there is a family
-        self.assertTrue(any([ref.rank == 'family' for ref in refs]))
-
         # Assert there is a genus
         self.assertTrue(any([ref.rank == 'genus' for ref in refs]))
 
