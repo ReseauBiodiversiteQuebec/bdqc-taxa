@@ -78,3 +78,61 @@ def match_taxa(species) -> dict:
     # If there is no match, return None
     else:
         return None
+    
+
+def match_taxa_exact(species) -> dict:
+    """Match *exactly* a species name to the Bryoquel database
+    
+    Parameters
+    ----------
+    species : str
+        The species name to match
+    
+    Returns
+    -------
+    dict
+        A dictionary with the following keys:
+        - id: the Bryoquel IDtaxon
+        - scientific_name: Noms latins accept�s du taxon, sans auteur
+        - taxon_rank: Taxon rank
+        - genus: Taxon genus
+        - family: Taxon family
+        - clade: Taxon clade
+        - canonical_full: Noms latins accept�s du taxon, avec auteur
+        - authorship: Auteur obtenu de Noms latins accept�s
+        - vernacular_name_fr: Noms fran�ais accept�s
+        - vernacular_name_en: Noms anglais accept�s
+    """
+    # Get the cursor
+    c = conn.cursor()
+    
+    # Get the species name
+    species = species.strip()
+
+    c.execute('''
+    SELECT * FROM bryoquel
+    WHERE scientific_name = ?
+    ORDER BY taxon_rank
+    LIMIT 1
+    ''', (species,))
+
+    rows = c.fetchone()
+
+    # If there is a match, return the result
+    if rows:
+        return {
+            'db_id': rows[0],
+            'id': rows[1],
+            'scientific_name': rows[2],
+            'taxon_rank': rows[3],
+            'genus': rows[4],
+            'family': rows[5],
+            'clade': rows[6],
+            'canonical_full': rows[7],
+            'authorship': rows[8],
+            'vernacular_name_fr': rows[9],
+            'vernacular_name_en': rows[10]
+        }
+    # If there is no match, return None
+    else:
+        return None
