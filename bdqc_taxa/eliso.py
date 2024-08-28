@@ -57,11 +57,10 @@ def match_taxa(name) -> dict:
     name = name.strip()
     
     c.execute('''
-    SELECT eliso_invertebrates.* FROM eliso_invertebrates
-    JOIN eliso_invertebrates_fts ON eliso_invertebrates_fts.taxa_name = eliso_invertebrates.taxa_name
-    WHERE eliso_invertebrates_fts.taxa_name MATCH ?
+    SELECT * FROM eliso_invertebrates
+    WHERE taxa_name = ?
     ORDER BY taxa_rank
-    ''', (f'"{name}"',))
+    ''', (name,))
 
     # Get the first result
     result = c.fetchone()
