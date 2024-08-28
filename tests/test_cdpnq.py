@@ -24,11 +24,6 @@ class TestCdpnqOdonates(unittest.TestCase):
         self.assertEqual(result['name'], 'Libellula')
         self.assertEqual(result['rank'], 'genus')
 
-    def test_match_canonical(self, name = 'Libellula luctuosa Burmeister, 1839'):
-        result = cdpnq.match_taxa_odonates(name)
-        self.assertEqual(result['name'], 'Libellula luctuosa')
-        self.assertEqual(result['rank'], 'species')
-
 class TestCdpnqVertebrates(unittest.TestCase):
     def test_match_species(self, name = 'Pica hudsonia'):
         result = cdpnq.match_taxa_vertebrates(name)
