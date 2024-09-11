@@ -44,10 +44,10 @@ class TestCdpnqVertebrates(unittest.TestCase):
         self.assertEqual(result['name'], 'Pica')
         self.assertEqual(result['rank'], 'genus')
 
-    def test_match_good_rank(self, name = 'Rana'):
+    def test_no_match_taxon(self, name = 'Rana'):
         result = cdpnq.match_taxa_vertebrates(name)
-        self.assertNotEqual(result['valid_name'], 'Lithobates catesbeianus')
-        self.assertNotEqual(result['rank'], 'species')
+        self.assertEqual(result, None)
+
 
 
 # Test match_taxa for both odonates and vertebrates
