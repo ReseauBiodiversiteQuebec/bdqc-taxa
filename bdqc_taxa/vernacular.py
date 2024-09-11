@@ -84,7 +84,7 @@ class Vernacular:
 
     @classmethod
     def from_bryoquel_match(cls, name: str = ''):
-        taxa = bryoquel.match_taxa_exact(name)
+        taxa = bryoquel.match_taxa(name)
         out = []
         if taxa and taxa['vernacular_name_fr']:
             out = [*out, cls(
@@ -108,7 +108,7 @@ class Vernacular:
 
     @classmethod
     def from_cdpnq_match(cls, name: str = ''):
-        taxas = cdpnq.match_taxa_exact(name)
+        taxas = cdpnq.match_taxa(name)
         if not taxas:
             return []
         out = []
