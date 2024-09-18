@@ -352,7 +352,7 @@ class TaxaRef:
         out = list(out_dict.values()) 
 
         # Remove matches that are fuzzy synonyms
-        out = [ref for ref in out if not (ref.valid == False and ref.match_type == 'fuzzy')]
+        #out = [ref for ref in out if not (ref.valid == False and ref.match_type == 'fuzzy')]
 
         return out
 
