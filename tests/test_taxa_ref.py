@@ -279,6 +279,40 @@ class TestTaxaRef(unittest.TestCase):
         self.assertTrue(any(bryoquel_matches))
         self.assertTrue(any([ref.scientific_name == 'Anthelia julacea' for ref in bryoquel_matches]))
 
+    def test_bubo_with_parent(self, name='Bubo scandiacus', parent_scientific_name='Chordata'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa=parent_scientific_name)
+        scientific_names = [ref.scientific_name for ref in refs]
+        self.assertNotIn('Bubo scandiaca', scientific_names)
+
+    def test_bubo_parentless(self, name='Bubo scandiacus'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        scientific_names = [ref.scientific_name for ref in refs]
+        self.assertNotIn('Bubo scandiaca', scientific_names)
+
+    def test_bubo_fuzzy_with_parent(self, name='Bubo scandyacus', parent_scientific_name='Chordata'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa=parent_scientific_name)
+        scientific_names = [ref.scientific_name for ref in refs]
+        self.assertNotIn('Bubo scandiaca', scientific_names)
+        
+    def test_bubo_fuzzy_parentless(self, name='Bubo scandyacus'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        scientific_names = [ref.scientific_name for ref in refs]
+        self.assertNotIn('Bubo scandiaca', scientific_names)
+
+    def test_bubo_parent_parentless_output_len(self, name='Bubo scandiacus', parent_scientific_name='Chordata'):
+        results_parent = taxa_ref.TaxaRef.from_all_sources(name)
+        results_parentless = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa=parent_scientific_name)
+        self.assertTrue(len(results_parent) == len(results_parentless))
+        
+    def test_hyla_pruned_subspecies(self, name='Hyla versicolor versicolor', parent_scientific_name='Chordata'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa=parent_scientific_name)
+        scientific_names = [ref.scientific_name for ref in refs]
+        self.assertIn('Hyla versicolor versicolor', scientific_names)
+    
+    def test_fuzzy_canis_lupus(self, name='Canisse lupus', parent_scientific_name='Chordata'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa=parent_scientific_name)
+        scientific_names = [ref.scientific_name for ref in refs]
+        self.assertIn('Canis lupus', scientific_names)
 
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
