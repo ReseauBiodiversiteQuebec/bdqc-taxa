@@ -149,9 +149,9 @@ These tables containts the custom sources used by the `taxa_ref` module. They ar
 ### TABLE cdpnq_vertebrates
 
 #### Description: 
-    This file was generated from the Liste de la faune vert�br�e du Qu�bec (LFVQ) Data file LFVQ_05_12_2022.xlsx 
+    This file was generated from the Liste de la faune vert�br�e du Qu�bec (LFVQ) Data file LFVQ_18_04_2024.xlsx 
     The file was obtained from Donn�es Qu�bec on 2023-01-12.
-    The last version of thefile is from 2022-12-05`.
+    The last version of thefile is from 2024_04_18`.
     The file was parsed using the script `scripts/make_cdpnq_vertebrates.py`.
 
 #### Columns:

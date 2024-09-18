@@ -9,7 +9,7 @@ import sqlite3
 
 # %%
 # Set the path to the data directory
-xls_path = "../scratch/LFVQ_05_12_2022.xlsx"
+xls_path = "scratch/LFVQ_18_04_2024.xlsx"
 
 # Load the data
 df = pd.read_excel(xls_path, header=0)
@@ -149,12 +149,12 @@ df.head(30)
 # %% Export to csv
 
 # Export to csv
-df.to_csv("../scratch/cdpnq_vertebrates_verified.csv", index=False)
+df.to_csv("scratch/cdpnq_vertebrates_verified.csv", index=False)
 
 # %%
 # Write to sqlite database
 
-db_file = "..\\bdqc_taxa\\custom_sources.sqlite"
+db_file = "bdqc_taxa/custom_sources.sqlite"
 conn = sqlite3.connect(db_file)
 # Drop the table if it exists
 conn.execute("DROP TABLE IF EXISTS cdpnq_vertebrates")
