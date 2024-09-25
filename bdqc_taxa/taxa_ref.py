@@ -312,20 +312,7 @@ class TaxaRef:
                     keep_ids.update([ref.source_record_id])
 
         # Keep only the rows with ids in keep_ids
-        out = [ref for ref in taxa_ref_list if ref.source_record_id in keep_ids]
-
-        # Remove out duplicates from source_record_id
-        out_dict = {}
-        for ref in out:
-            # Populate out_dict
-            if ref.source_record_id not in out_dict:
-                out_dict[ref.source_record_id] = ref
-            # Replace entry in out_dict for a same srid if its match_type is `exact`
-            elif ref.match_type == 'exact':
-                out_dict[ref.source_record_id] = ref
-        
-        # Extract values from the dictionary
-        out = list(out_dict.values())
+        out = [ref for ref in taxa_ref_list if ref.valid_srid in keep_ids]
         
         return out
 
@@ -349,19 +336,21 @@ class TaxaRef:
         # Prune for parent taxa
         if parent_taxa:
             out = cls._prune_parent_taxa(out, parent_taxa)
-        else:
-            out_dict = {}
-            for ref in out:
-                # Populate out_dict
-                if ref.source_record_id not in out_dict:
-                    out_dict[ref.source_record_id] = ref
-                # Replace entry in out_dict for a same srid if its match_type is `exact`
-                elif ref.match_type == 'exact':
-                    out_dict[ref.source_record_id] = ref
         
-            # Extract values from the dictionary
-            out = list(out_dict.values())
-            
+        # Remove duplicated records
+        # (same taxonomic branch but for synonym of targeted taxons)
+        out_dict = {}
+        for ref in out:
+            # Populate out_dict
+            if ref.source_record_id not in out_dict:
+                out_dict[ref.source_record_id] = ref
+            # Replace entry in out_dict for a same srid if its match_type is `exact`
+            elif ref.match_type == 'exact':
+                out_dict[ref.source_record_id] = ref
+        
+        # Extract values from the dictionary
+        out = list(out_dict.values()) 
+
         return out
 
     @classmethod
