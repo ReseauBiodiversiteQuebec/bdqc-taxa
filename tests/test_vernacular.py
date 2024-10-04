@@ -81,6 +81,10 @@ class TestVernacular(TestCase):
         results = Vernacular.from_cdpnq_match(name)
         self.assertFalse(results)
 
+    def test_match_english_cdpnq(self, name = 'Perimyotis subflavus'):
+        result = Vernacular.from_cdpnq_match(name)
+        self.assertTrue(any(item.language == 'eng' for item in result))
+
     # Special case test: Synonym scientific name is not in CDPNQ : Bug #5
     # Removed. We no longer expect Vernacular to return vernacular names for
     # synonyms.

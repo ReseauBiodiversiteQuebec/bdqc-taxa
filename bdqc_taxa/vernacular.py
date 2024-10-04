@@ -121,7 +121,15 @@ class Vernacular:
                 rank = taxa['rank'],
                 rank_order = rank_order(taxa['rank'])
             ))
-        
+        for taxa in taxas:
+            out.append(cls(
+                name = taxa['vernacular_en'],
+                source = 'CDPNQ',
+                language = 'eng',
+                source_taxon_key = taxa['name'],
+                rank = taxa['rank'],
+                rank_order = rank_order(taxa['rank'])
+            ))
         return out
     
     @classmethod
