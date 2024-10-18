@@ -27,7 +27,7 @@ import re
 import tempfile
 from urllib.request import urlretrieve
 
-DB_FILE = '../bdqc_taxa/custom_sources.sqlite'
+DB_FILE = 'bdqc_taxa/custom_sources.sqlite'
 
 # %%
 # Download the xls file from the Bryoquel website and store in a temp folder
@@ -37,9 +37,9 @@ DB_FILE = '../bdqc_taxa/custom_sources.sqlite'
 temp_dir = tempfile.TemporaryDirectory()
 
 # Download the file
-url = 'http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
-file_path = temp_dir.name + '/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
-urlretrieve(url, file_path)
+#url = 'http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
+file_path = 'scratch/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
+#urlretrieve(url, file_path)
 
 # %%
 # Function to parse the authorship from the scientific name
@@ -203,17 +203,13 @@ out_df = out_df[[
 
 # %%
 # Save the dataframe to a csv file
-# out_df.to_csv('bryoquel_12_septembre_2022.csv', index=False)
+out_df.to_csv('scratch/bryoquel_18_octobre_2024.csv', index=False)
 
 # %%
 # Save df to a sqlite database `bdqc_taxa\data\bryoquel_12_septembre_2022.sqlite`
 # Required packages
 import sqlite3
 import os
-
-# Delete the database if it already exists
-if os.path.exists(DB_FILE):
-    os.remove(DB_FILE)
 
 # Save the dataframe to the database sqlite database with FTS5
 conn = sqlite3.connect(DB_FILE)
@@ -240,15 +236,14 @@ conn.close()
 conn = sqlite3.connect(DB_FILE)
 c = conn.cursor()
 
-matched_name = 'Aulacomniaceae'
+matched_name = 'Marsupella sprucei'
 
 c.execute('''
-SELECT bryoquel.* FROM bryoquel
-JOIN bryoquel_fts ON bryoquel_fts.scientific_name = bryoquel.scientific_name
-WHERE bryoquel_fts MATCH ?
-ORDER BY rank
-LIMIT 1
-''', (f'"{matched_name}"',))
+    SELECT * FROM bryoquel
+    WHERE scientific_name = ?
+    ORDER BY taxon_rank
+    LIMIT 1
+    ''', (matched_name,))
 
 
 results = c.fetchall()

@@ -107,9 +107,9 @@ These tables containts the custom sources used by the `taxa_ref` module. They ar
 ### TABLE bryoquel
 
 #### Description: 
-    This file was generated on 2022-09-21 from the Bryoquel taxonomy file.
-    The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2022-09-21.
-    The last version of the bryoquel xlsx file is from 2022-09-12`.
+    This file was generated on 2024-10-18 from the Bryoquel taxonomy file.
+    The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2024-10-17.
+    The last version of the bryoquel xlsx file is from 2024-10-18`.
     The file was parsed using the script `scripts/parse_bryoquel.py`.
     The file was parsed using the script parse_bryoquel.ipynb.
 
