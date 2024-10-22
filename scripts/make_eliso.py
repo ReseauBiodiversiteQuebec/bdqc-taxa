@@ -112,10 +112,9 @@ conn.execute("DROP TABLE IF EXISTS eliso_invertebrates")
 inverts.to_sql("eliso_invertebrates", conn, if_exists="replace", index=False)
 
 # Create fts5 virtual table for full text search
-c = conn.cursor()
-c.execute("DROP TABLE IF EXISTS eliso_invertebrates_fts")
-c.execute("CREATE VIRTUAL TABLE eliso_invertebrates_fts USING fts5(taxa_name, taxa_rank, vernacular_fr)")
-c.execute("INSERT INTO eliso_invertebrates_fts (taxa_name, taxa_rank, vernacular_fr) SELECT taxa_name, taxa_rank, vernacular_fr FROM eliso_invertebrates")
+conn.execute("DROP TABLE IF EXISTS eliso_invertebrates_fts")
+#c.execute("CREATE VIRTUAL TABLE eliso_invertebrates_fts USING fts5(taxa_name, taxa_rank, vernacular_fr)")
+#c.execute("INSERT INTO eliso_invertebrates_fts (taxa_name, taxa_rank, vernacular_fr) SELECT taxa_name, taxa_rank, vernacular_fr FROM eliso_invertebrates")
 conn.commit()
 conn.close()
 

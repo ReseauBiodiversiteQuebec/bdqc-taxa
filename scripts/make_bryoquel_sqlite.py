@@ -34,7 +34,7 @@ DB_FILE = 'bdqc_taxa/custom_sources.sqlite'
 # http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx
 
 # Create temporary folder
-temp_dir = tempfile.TemporaryDirectory()
+#temp_dir = tempfile.TemporaryDirectory()
 
 # Download the file
 #url = 'http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
@@ -222,10 +222,11 @@ out_df.to_sql('bryoquel', conn, if_exists='replace')
 # https://www.sqlite.org/fts5.html#full_text_index_queries
 
 # Create the FTS5 table
-conn.execute('CREATE VIRTUAL TABLE bryoquel_fts USING fts5(scientific_name, canonical_full, vernacular_fr, vernacular_en)')
+conn.execute("DROP TABLE IF EXISTS bryoquel_fts")
+#conn.execute('CREATE VIRTUAL TABLE bryoquel_fts USING fts5(scientific_name, canonical_full, vernacular_fr, vernacular_en)')
 
 # Insert the data
-conn.execute('INSERT INTO bryoquel_fts (scientific_name, canonical_full, vernacular_fr, vernacular_en) SELECT scientific_name, canonical_full, vernacular_fr, vernacular_en FROM bryoquel')
+#conn.execute('INSERT INTO bryoquel_fts (scientific_name, canonical_full, vernacular_fr, vernacular_en) SELECT scientific_name, canonical_full, vernacular_fr, vernacular_en FROM bryoquel')
 conn.commit()
 conn.close()
 
@@ -260,9 +261,9 @@ It contains custom taxa list as tables in a sqlite database with FTS5 enabled fo
 TABLE bryoquel
 
 Description: 
-    This file was generated on 2022-09-21 from the Bryoquel taxonomy file.
-    The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2022-09-21.
-    The last version of the bryoquel xlsx file is from 2022-09-12`.
+    This file was generated on 2024-10-18 from the Bryoquel taxonomy file.
+    The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2024-10-18.
+    The last version of the bryoquel xlsx file is from 2024-10-18`.
     The file was parsed using the script `scripts/parse_bryoquel.py`.
     The file was parsed using the script parse_bryoquel.ipynb.
 

@@ -163,10 +163,9 @@ conn.execute("DROP TABLE IF EXISTS cdpnq_vertebrates")
 df.to_sql("cdpnq_vertebrates", conn, if_exists="replace", index=False)
 
 # Create fts5 virtual table for full text search
-c = conn.cursor()
-c.execute("DROP TABLE IF EXISTS cdpnq_vertebrates_fts")
-c.execute("CREATE VIRTUAL TABLE cdpnq_vertebrates_fts USING fts5(name, canonical_full, vernacular_fr, vernacular_en)")
-c.execute("INSERT INTO cdpnq_vertebrates_fts (name, canonical_full, vernacular_fr, vernacular_en) SELECT name, canonical_full, vernacular_fr, vernacular_en FROM cdpnq_vertebrates")
+conn.execute("DROP TABLE IF EXISTS cdpnq_vertebrates_fts")
+#conn.execute("CREATE VIRTUAL TABLE cdpnq_vertebrates_fts USING fts5(name, canonical_full, vernacular_fr, vernacular_en)")
+#conn.execute("INSERT INTO cdpnq_vertebrates_fts (name, canonical_full, vernacular_fr, vernacular_en) SELECT name, canonical_full, vernacular_fr, vernacular_en FROM cdpnq_vertebrates")
 conn.commit()
 conn.close()
 
@@ -177,9 +176,9 @@ conn.close()
 # TABLE cdpnq_vertebrates
 
 # Description: 
-#     This file was generated from the Liste de la faune vertébrée du Québec (LFVQ) Data file LFVQ_05_12_2022.xlsx 
-#     The file was obtained from Données Québec on 2023-01-12.
-#     The last version of the file is from 2022-12-05`.
+#     This file was generated from the Liste de la faune vertébrée du Québec (LFVQ) Data file LFVQ_18_04_2024.xlsx 
+#     The file was obtained from Données Québec on 2024-04-18.
+#     The last version of the file is from 2024-04-18`.
 #     The file was parsed using the script `scripts/make_cdpnq_vertebrates.py`.
 
 # Columns:
