@@ -27,19 +27,19 @@ import re
 import tempfile
 from urllib.request import urlretrieve
 
-DB_FILE = '../bdqc_taxa/custom_sources.sqlite'
+DB_FILE = 'bdqc_taxa/custom_sources.sqlite'
 
 # %%
 # Download the xls file from the Bryoquel website and store in a temp folder
 # http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx
 
 # Create temporary folder
-temp_dir = tempfile.TemporaryDirectory()
+#temp_dir = tempfile.TemporaryDirectory()
 
 # Download the file
-url = 'http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
-file_path = temp_dir.name + '/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
-urlretrieve(url, file_path)
+#url = 'http://societequebecoisedebryologie.org/bryoquel_docs/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
+file_path = 'scratch/BRYOQUEL_Liste_des_Bryophytes_Qc-Labr.xlsx'
+#urlretrieve(url, file_path)
 
 # %%
 # Function to parse the authorship from the scientific name
@@ -203,17 +203,13 @@ out_df = out_df[[
 
 # %%
 # Save the dataframe to a csv file
-# out_df.to_csv('bryoquel_12_septembre_2022.csv', index=False)
+out_df.to_csv('scratch/bryoquel_18_octobre_2024.csv', index=False)
 
 # %%
 # Save df to a sqlite database `bdqc_taxa\data\bryoquel_12_septembre_2022.sqlite`
 # Required packages
 import sqlite3
 import os
-
-# Delete the database if it already exists
-if os.path.exists(DB_FILE):
-    os.remove(DB_FILE)
 
 # Save the dataframe to the database sqlite database with FTS5
 conn = sqlite3.connect(DB_FILE)
@@ -226,10 +222,11 @@ out_df.to_sql('bryoquel', conn, if_exists='replace')
 # https://www.sqlite.org/fts5.html#full_text_index_queries
 
 # Create the FTS5 table
-conn.execute('CREATE VIRTUAL TABLE bryoquel_fts USING fts5(scientific_name, canonical_full, vernacular_fr, vernacular_en)')
+conn.execute("DROP TABLE IF EXISTS bryoquel_fts")
+#conn.execute('CREATE VIRTUAL TABLE bryoquel_fts USING fts5(scientific_name, canonical_full, vernacular_fr, vernacular_en)')
 
 # Insert the data
-conn.execute('INSERT INTO bryoquel_fts (scientific_name, canonical_full, vernacular_fr, vernacular_en) SELECT scientific_name, canonical_full, vernacular_fr, vernacular_en FROM bryoquel')
+#conn.execute('INSERT INTO bryoquel_fts (scientific_name, canonical_full, vernacular_fr, vernacular_en) SELECT scientific_name, canonical_full, vernacular_fr, vernacular_en FROM bryoquel')
 conn.commit()
 conn.close()
 
@@ -240,15 +237,14 @@ conn.close()
 conn = sqlite3.connect(DB_FILE)
 c = conn.cursor()
 
-matched_name = 'Aulacomniaceae'
+matched_name = 'Marsupella sprucei'
 
 c.execute('''
-SELECT bryoquel.* FROM bryoquel
-JOIN bryoquel_fts ON bryoquel_fts.scientific_name = bryoquel.scientific_name
-WHERE bryoquel_fts MATCH ?
-ORDER BY rank
-LIMIT 1
-''', (f'"{matched_name}"',))
+    SELECT * FROM bryoquel
+    WHERE scientific_name = ?
+    ORDER BY taxon_rank
+    LIMIT 1
+    ''', (matched_name,))
 
 
 results = c.fetchall()
@@ -265,9 +261,9 @@ It contains custom taxa list as tables in a sqlite database with FTS5 enabled fo
 TABLE bryoquel
 
 Description: 
-    This file was generated on 2022-09-21 from the Bryoquel taxonomy file.
-    The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2022-09-21.
-    The last version of the bryoquel xlsx file is from 2022-09-12`.
+    This file was generated on 2024-10-18 from the Bryoquel taxonomy file.
+    The file was downloaded from http://societequebecoisedebryologie.org/Bryoquel.html on 2024-10-18.
+    The last version of the bryoquel xlsx file is from 2024-10-18`.
     The file was parsed using the script `scripts/parse_bryoquel.py`.
     The file was parsed using the script parse_bryoquel.ipynb.
 
