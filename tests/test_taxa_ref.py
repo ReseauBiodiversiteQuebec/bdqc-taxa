@@ -99,7 +99,7 @@ class TestTaxaRef(unittest.TestCase):
         ]
         self.assertFalse(bad_refs)
     
-    def test_from_cdpnq(self, name='Libellula luctuosa'):
+    def test_from_cdpnq(self, name='Lestes vigilax'):
         refs = taxa_ref.TaxaRef.from_cdpnq(name)
         self.assertTrue(len(refs) > 1)
         [self.assertTrue(v) for ref in refs for k, v in vars(ref).items()
