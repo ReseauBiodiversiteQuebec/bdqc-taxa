@@ -73,8 +73,7 @@ def match_taxa_odonates(name) -> dict:
             'synonym': result[3],
             'author': result[4],
             'canonical_full': result[5],
-            'vernacular_fr': result[6],
-            'vernacular_fr2': result[7]
+            'vernacular_fr': result[6]
         }
     else:
         return None
