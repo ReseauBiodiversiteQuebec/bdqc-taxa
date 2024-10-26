@@ -139,15 +139,15 @@ class Vernacular:
         if not matched_vernacular:
             return []
         out = []
-        for taxa in matched_vernacular:
-            out.append(cls(
-                name = taxa['vernacular_fr'],
+        if matched_vernacular:
+            out = [*out, cls(
+                name = matched_vernacular['vernacular_fr'],
                 source = 'Eliso',
                 language = 'fra',
-                source_taxon_key = taxa['taxa_name'],
-                rank = taxa['taxa_rank'],
-                rank_order = rank_order(taxa['taxa_rank'])
-            ))
+                source_taxon_key = matched_vernacular['taxa_name'],
+                rank = matched_vernacular['taxa_rank'],
+                rank_order = rank_order(matched_vernacular['taxa_rank'])
+            )]
         
         return out
 
