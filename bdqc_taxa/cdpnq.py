@@ -54,9 +54,8 @@ def match_taxa_odonates(name) -> dict:
     c.execute('''
     SELECT * FROM cdpnq_odonates
     WHERE name = ?
-    OR valid_name = ?
     ORDER BY rank
-    ''', (name, name))
+    ''', (name,))
 
     # Get the first result
     result = c.fetchone()
@@ -108,9 +107,8 @@ def match_taxa_vertebrates(name) -> dict:
     c.execute('''
     SELECT * FROM cdpnq_vertebrates
     WHERE name = ?
-    OR valid_name = ?
     ORDER BY rank
-    ''', (name, name))
+    ''', (name,))
 
     # Get the first result
     result = c.fetchone()
