@@ -29,6 +29,7 @@ class TestCdpnqOdonates(unittest.TestCase):
         self.assertTrue(result['name'] == 'Ladona julia')
         self.assertTrue(result['valid_name'] == 'Ladona julia')
         self.assertTrue(result['rank'] == 'species')
+        
 class TestCdpnqVertebrates(unittest.TestCase):
     def test_match_species(self, name = 'Pica hudsonia'):
         result = cdpnq.match_taxa_vertebrates(name)
