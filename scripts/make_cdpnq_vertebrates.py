@@ -107,7 +107,6 @@ genus_rows = df.copy()
 genus_rows["name"] = genus_rows["name"].str.split(" ").str[0]
 genus_rows["valid_name"] = genus_rows["name"]
 genus_rows["rank"] = "genus"
-genus_rows["synonym"] = False
 genus_rows["author"] = np.nan
 
 # Remove `petit` or `grand` from the vernacular names
