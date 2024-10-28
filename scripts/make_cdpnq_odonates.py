@@ -77,12 +77,11 @@ df.loc[df["synonym"] == True, :]
 # Genus names
 genus_rows = df.copy()
 genus_rows["name"] = genus_rows["name"].str.split(" ").str[0]
+genus_rows["valid_name"] = genus_rows["name"]
 genus_rows["rank"] = "genus"
-genus_rows["synonym"] = False
 genus_rows["author"] = np.nan
 genus_rows["canonical_full"] = genus_rows["name"]
 genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.split(" ").str[0]
-#genus_rows["vernacular_fr2"] = genus_rows["vernacular_fr2"].str.split(" ").str[0]
 
 # Drop duplicates
 genus_rows = genus_rows.drop_duplicates(subset=["name"])
