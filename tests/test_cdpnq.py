@@ -24,6 +24,11 @@ class TestCdpnqOdonates(unittest.TestCase):
         self.assertEqual(result['name'], 'Libellula')
         self.assertEqual(result['rank'], 'genus')
 
+    def test_ladona_julia(self, name = 'Ladona julia'):
+        result = cdpnq.match_taxa_odonates(name)
+        self.assertTrue(result['name'] == 'Ladona julia')
+        self.assertTrue(result['valid_name'] == 'Ladona julia')
+        self.assertTrue(result['rank'] == 'species')
 class TestCdpnqVertebrates(unittest.TestCase):
     def test_match_species(self, name = 'Pica hudsonia'):
         result = cdpnq.match_taxa_vertebrates(name)
