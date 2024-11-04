@@ -293,12 +293,20 @@ class TestTaxaRef(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa=parent_scientific_name)
         scientific_names = [ref.scientific_name for ref in refs]
         self.assertIn('Canis lupus', scientific_names)
+        
+    def test_fuzzy_canis_lupus_cdpnq(self, name='Canisse lupus'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        cdpnq_ref = [ref for ref in refs if ref.source_name == 'CDPNQ' and ref.is_parent == False ][0]
+        self.assertFalse(cdpnq_ref.match_type == 'exact')
 
     def test_fuzzy_invalid(self, name='Hyla versicolor versicool'):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         scientific_names = [ref.scientific_name for ref in refs]
         self.assertIn('Hyla versicolor versicolor', scientific_names)
 
+    def test_match_type_follow_cdpnq(self, name='Cyprinus carpio', authorship='Linnaeus 1758'):
+        result = taxa_ref.TaxaRef.from_all_sources(name, authorship)
+        self.assertTrue(len(result) > 1)        
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
                              name='Lasiurus cinereus|Lasionycteris noctivagans'):
