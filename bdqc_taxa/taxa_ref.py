@@ -326,13 +326,13 @@ class TaxaRef:
         for match in out_bryoquel if out_bryoquel else []: # Loops over out_bryoquel if not empy
             if not match.is_parent: # for each item check if parent is true
                 match.match_type = match_type # if it IS parent, then set match_type accordingly
-            out_custom.extend(out_bryoquel)
+            out_custom.append(out_bryoquel)
         
         out_cdpnq = cls.from_cdpnq(fuzzy_name)
         for match in out_cdpnq if out_cdpnq else []:
             if not match.is_parent:
                 match.match_type = match_type
-            out_custom.extend(out_cdpnq)
+            out_custom.append(match)
                 
         return out_custom
 
@@ -344,8 +344,8 @@ class TaxaRef:
         out.extend(cls.from_cdpnq(name)) # exact match only
         
         # Fuzzy match for custom sources
-        fuzzy_names = [(ref.scientific_name, ref.match_type) for ref in out
-                       if ref.is_parent == False and ref.match_type != 'exact']
+        fuzzy_names = list({(ref.scientific_name, ref.match_type) for ref in out
+                       if not ref.is_parent and ref.match_type != 'exact'})
         
         if len(fuzzy_names) >= 1:
             for name, match_type in fuzzy_names:
