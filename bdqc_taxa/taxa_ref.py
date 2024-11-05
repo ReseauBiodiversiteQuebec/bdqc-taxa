@@ -326,7 +326,7 @@ class TaxaRef:
         for match in out_bryoquel if out_bryoquel else []: # Loops over out_bryoquel if not empy
             if not match.is_parent: # for each item check if parent is true
                 match.match_type = match_type # if it IS parent, then set match_type accordingly
-            out_custom.append(out_bryoquel)
+            out_custom.append(match)
         
         out_cdpnq = cls.from_cdpnq(fuzzy_name)
         for match in out_cdpnq if out_cdpnq else []:
