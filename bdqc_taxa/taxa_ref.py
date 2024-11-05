@@ -348,8 +348,8 @@ class TaxaRef:
                        if not ref.is_parent and ref.match_type != 'exact'})
         
         if len(fuzzy_names) >= 1:
-            for name, match_type in fuzzy_names:
-                out.extend(cls.from_custom_sources_fuzzy_matched(name, match_type))
+            for fuzzy_name, match_type in fuzzy_names:
+                out.extend(cls.from_custom_sources_fuzzy_matched(fuzzy_name, match_type))
             
         if is_complex(name):
             out = cls.set_complex_match_type(out)
