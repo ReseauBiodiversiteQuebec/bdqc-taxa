@@ -139,6 +139,8 @@ class TaxaRef:
                         result["matchedName"],
                         result["matchedCanonicalFull"])
                     is_parent = False
+                    if result["matchType"] in ("PartialExact", "PartialFuzzy"):
+                        is_parent = True
                     if is_valid:
                         match_type = result["matchType"].lower()
                 else:
