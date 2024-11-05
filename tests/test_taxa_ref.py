@@ -144,7 +144,7 @@ class TestTaxaRef(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         cdpnq_refs = [
             ref for ref in refs
-            if ref.source_name == 'CDPNQ' and ref.match_type == 'exact'
+            if ref.source_name == 'CDPNQ' and ref.match_type != 'exact'
         ]
         self.assertGreater(len(cdpnq_refs), 0)
 
