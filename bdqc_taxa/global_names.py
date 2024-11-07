@@ -20,7 +20,7 @@ def _verify(name: str, data_sources: list = DATA_SOURCES, all_matches: bool = AL
     else:
         all_matches = "false"
 
-    path_name = quote_plus(name.lower())
+    path_name = quote_plus(name)
 
 
     params = urlencode(

@@ -139,6 +139,8 @@ class TaxaRef:
                         result["matchedName"],
                         result["matchedCanonicalFull"])
                     is_parent = False
+                    if result["matchType"] in ("PartialExact", "PartialFuzzy"):
+                        is_parent = True
                     if is_valid:
                         match_type = result["matchType"].lower()
                 else:
@@ -238,7 +240,7 @@ class TaxaRef:
             "classification_srids": classification_srids,
             "valid": True,
             "valid_srid": result["key"],
-            "match_type": match_species["matchType"].lower(),
+            "match_type": match_species["matchType"].lower() if is_valid else None,
             "is_parent": is_parent
         }
         out.append(cls(**out_kwargs))
@@ -315,21 +317,40 @@ class TaxaRef:
         out = [ref for ref in taxa_ref_list if ref.valid_srid in keep_ids]
         
         return out
+    
+    @classmethod
+    def from_custom_sources_fuzzy_matched(cls, fuzzy_name: str, match_type: str = None):
+        out_custom = []
+        
+        out_bryoquel = cls.from_bryoquel(fuzzy_name)
+        for match in out_bryoquel if out_bryoquel else []: # Loops over out_bryoquel if not empy
+            if not match.is_parent: # for each item check if parent is true
+                match.match_type = match_type # if it IS parent, then set match_type accordingly
+            out_custom.append(match)
+        
+        out_cdpnq = cls.from_cdpnq(fuzzy_name)
+        for match in out_cdpnq if out_cdpnq else []:
+            if not match.is_parent:
+                match.match_type = match_type
+            out_custom.append(match)
+                
+        return out_custom
 
     @classmethod
     def from_all_sources(cls, name: str, authorship: str = None, parent_taxa: str = None):
         out = cls.from_global_names(name, authorship)
         out.extend(cls.from_gbif(name, authorship))
-
-        # Matched names refers to the names that were matched including
-        # synonyms and valid names
-        matched_names = { v.scientific_name for v in out if not v.is_parent }
-        if len(matched_names) >= 1:
-            [out.extend(cls.from_bryoquel(m_name)) for m_name in matched_names]
-            [out.extend(cls.from_cdpnq(m_name)) for m_name in matched_names]
-        else:
-            out.extend(cls.from_bryoquel(name))
-            out.extend(cls.from_cdpnq(name))
+        out.extend(cls.from_bryoquel(name)) # exact match only
+        out.extend(cls.from_cdpnq(name)) # exact match only
+        
+        # Fuzzy match for custom sources
+        fuzzy_names = list({(ref.scientific_name, ref.match_type) for ref in out
+                       if not ref.is_parent and ref.match_type != 'exact'})
+        
+        if len(fuzzy_names) >= 1:
+            for fuzzy_name, match_type in fuzzy_names:
+                out.extend(cls.from_custom_sources_fuzzy_matched(fuzzy_name, match_type))
+            
         if is_complex(name):
             out = cls.set_complex_match_type(out)
 
@@ -519,6 +540,7 @@ class TaxaRef:
 
         # Remove duplicates
         out = {ref.source_record_id: ref for ref in out}.values()
+        out = list(out)
 
         return out
 

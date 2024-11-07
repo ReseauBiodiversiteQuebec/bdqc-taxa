@@ -144,7 +144,7 @@ class TestTaxaRef(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         cdpnq_refs = [
             ref for ref in refs
-            if ref.source_name == 'CDPNQ' and ref.match_type == 'exact'
+            if ref.source_name == 'CDPNQ' and ref.match_type != 'exact'
         ]
         self.assertGreater(len(cdpnq_refs), 0)
 
@@ -293,11 +293,43 @@ class TestTaxaRef(unittest.TestCase):
         refs = taxa_ref.TaxaRef.from_all_sources(name, parent_taxa=parent_scientific_name)
         scientific_names = [ref.scientific_name for ref in refs]
         self.assertIn('Canis lupus', scientific_names)
+        
+    def test_fuzzy_canis_lupus_cdpnq(self, name='Canisse lupus'):
+        refs = taxa_ref.TaxaRef.from_all_sources(name)
+        cdpnq_ref = [ref for ref in refs if ref.source_name == 'CDPNQ' and ref.is_parent == False ][0]
+        self.assertFalse(cdpnq_ref.match_type == 'exact')
 
     def test_fuzzy_invalid(self, name='Hyla versicolor versicool'):
         refs = taxa_ref.TaxaRef.from_all_sources(name)
         scientific_names = [ref.scientific_name for ref in refs]
         self.assertIn('Hyla versicolor versicolor', scientific_names)
+        
+    def test_gbif_match_type(self, name='Libellula julia', valid_synonym='Ladona julia'):
+        results = taxa_ref.TaxaRef._from_gbif_singleton(name)
+        match_rec = [ref for ref in results if ref.scientific_name == name][0]
+        synonym_rec = [ref for ref in results if ref.scientific_name == valid_synonym][0]
+        self.assertTrue(match_rec.match_type == 'exact')
+        self.assertTrue(synonym_rec.match_type == None)
+        
+    def test_gn_match_type(self, name='Libellula julia', valid_synonym='Ladona julia'):
+        results = taxa_ref.TaxaRef.from_global_names(name)
+        match_rec = [ref for ref in results if ref.scientific_name == name][0]
+        synonym_rec = [ref for ref in results if ref.scientific_name == valid_synonym][0]
+        self.assertTrue(match_rec.match_type == 'exact')
+        self.assertTrue(synonym_rec.match_type == None)
+        
+    def test_from_all_sources_match_type(self, name='Libellula julia', valid_synonym='Ladona julia'):
+        results = taxa_ref.TaxaRef.from_all_sources(name)
+        match_recs = [ref for ref in results if ref.scientific_name == name]
+        synonym_recs = [ref for ref in results if ref.scientific_name == valid_synonym]
+        self.assertTrue(all([rec.match_type == 'exact' for rec in match_recs]))
+        self.assertTrue(all([rec.match_type == None for rec in synonym_recs]))
+        
+    def test_cyprinus_carpio_match_type(self, name='Cyprinus carpio', authorship='Linnaeus 1758'):
+        results = taxa_ref.TaxaRef.from_all_sources(name, authorship)
+        wrong_match = [ref for ref in results if (ref.match_type == 'partialexact' or ref.match_type == 'exact')
+                       and ref.rank == 'genus']
+        self.assertTrue(len(wrong_match) == 0)
 
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
