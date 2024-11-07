@@ -240,7 +240,7 @@ class TaxaRef:
             "classification_srids": classification_srids,
             "valid": True,
             "valid_srid": result["key"],
-            "match_type": match_species["matchType"].lower() if match_species['canonicalName'] == match_species.get(match_species['rank'].lower()) else None,
+            "match_type": match_species["matchType"].lower() if is_valid else None,
             "is_parent": is_parent
         }
         out.append(cls(**out_kwargs))
