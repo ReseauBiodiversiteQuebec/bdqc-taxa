@@ -124,7 +124,7 @@ class TaxaRef:
                     "valid": is_valid,
                     "valid_srid": result["currentRecordId"],
                     "match_type": result["matchType"].lower(),
-                    "is_parent": False
+                    "is_parent": True if result["matchType"] in ("PartialExact", "PartialFuzzy") else False
                 }
                 out.append(cls(**out_kwargs))
             for rank_order, taxa_attributes in enumerate(zip(

@@ -331,6 +331,11 @@ class TestTaxaRef(unittest.TestCase):
                        and ref.rank == 'genus']
         self.assertTrue(len(wrong_match) == 0)
 
+    def test_calliope_match_type(self, name='Calliope calliope', authorship='(Pallas, 1776)'):
+        results = taxa_ref.TaxaRef.from_all_sources(name, authorship)
+        matches =  [ref for ref in results if (ref.match_type == 'partialexact' and ref.is_parent == False)]
+        self.assertTrue(len(matches) == 0)
+
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
                              name='Lasiurus cinereus|Lasionycteris noctivagans'):
