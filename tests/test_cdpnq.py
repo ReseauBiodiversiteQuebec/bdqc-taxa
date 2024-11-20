@@ -53,8 +53,14 @@ class TestCdpnqVertebrates(unittest.TestCase):
     def test_no_match_taxon(self, name = 'Rana'):
         result = cdpnq.match_taxa_vertebrates(name)
         self.assertEqual(result, None)
-
-
+    
+    def test_rangifer_tarandus(self, name = 'Rangifer tarandus'):
+        result = cdpnq.match_taxa_vertebrates(name)
+        self.assertTrue(result['valid_name'] == 'Rangifer tarandus caribou')
+        self.assertTrue(result['rank'] == 'subspecies')
+        self.assertTrue(result['synonym'] == 1)
+        self.assertTrue(result['vernacular_fr'] == 'Caribou des bois')
+        self.assertTrue(result['vernacular_en'] == 'Woodland Caribou')
 
 # Test match_taxa for both odonates and vertebrates
 class TestCdpnq(unittest.TestCase):
