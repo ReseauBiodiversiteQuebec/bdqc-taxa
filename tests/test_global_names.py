@@ -26,3 +26,12 @@ class TestGlobalNames(TestCase):
         gn_out: list = global_names._verify('Diptera')
         filtered_out = global_names.verify('Diptera')
         self.assertTrue(len(gn_out['names'][0]['results']) > len(filtered_out['names'][0]['results']))
+        
+    def test_trillium_authorship_conflict(self, name='Trillium erythrocarpum', authorship='Michx.'):
+        result: list = global_names.verify(name, authorship)
+        result = result['names'][0]['results']
+        data_source_ids = [item['dataSourceId'] for item in result]
+        # Assert that the length of unique data_source_ids == the length of result
+        # This means that there are only one entry per data sources which is what we expect
+        self.assertTrue(len(set(data_source_ids)) == len(result))
+        
