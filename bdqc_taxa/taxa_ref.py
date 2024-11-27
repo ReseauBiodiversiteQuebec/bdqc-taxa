@@ -97,7 +97,7 @@ class TaxaRef:
         if data_sources is None:
             data_sources = DATA_SOURCES
 
-        gn_results = global_names.verify(name, data_sources=data_sources)
+        gn_results = global_names.verify(name, authorship, data_sources=data_sources)
         gn_results = gn_results['names']
         try:
             gn_results = [

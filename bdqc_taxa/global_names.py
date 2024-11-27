@@ -80,7 +80,25 @@ def _solve_source_name_conflicts(results: List[dict]) -> List[dict]:
                 out.extend(name_result)
     return out
 
-def verify(name: List[str], data_sources: list = DATA_SOURCES, all_matches: bool = ALL_MATCHES) -> List[dict]:
+def _solve_authorship_conflicts(results: List[dict]) -> List[dict]:
+    """
+    This function takes a list of results from the global names verifier (if there was an authorship provided) and returns only the best (first) results per data sources.
+    :param results: A list of results from the global names verifier.
+    :return: A list of results with authorship conflicts solved.
+    """
+    # Only keep the first entry in results, per data source
+    
+    check_datasourceid = set()  # To track seen `dataSourceId`s
+    out = []
+    
+    for result in results:
+        if result["dataSourceId"] not in check_datasourceid:
+            out.append(result)  # Add the first occurrence
+            check_datasourceid.add(result["dataSourceId"])  # Mark this `dataSourceId` as seen
+
+    return out
+
+def verify(name: List[str], authorship: List[str] = None, data_sources: list = DATA_SOURCES, all_matches: bool = ALL_MATCHES) -> List[dict]:
     """
     This function takes a list of names and returns a list of results from the global names verifier.
     :param names: A list of names to verify.
@@ -95,4 +113,12 @@ def verify(name: List[str], data_sources: list = DATA_SOURCES, all_matches: bool
             names[i]['results'] = _solve_source_name_conflicts(name['results'])
         except KeyError:
             pass
+        
+        if authorship:
+            names[i]['results'] = _solve_authorship_conflicts(name['results'])
+        else:
+            pass
+    
+    gn_out['names'] = names
+
     return gn_out
