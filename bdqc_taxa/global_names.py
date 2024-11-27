@@ -83,29 +83,34 @@ def _solve_source_name_conflicts(results: List[dict]) -> List[dict]:
 def _solve_authorship_conflicts(results: List[dict]) -> List[dict]:
     """
     This function takes a list of results from the global names verifier (if there was an authorship provided) and returns only the best (first) results per data sources.
+    The output from gnverifier API already orders the results by best matches per data sources with the help of the provided authorship.
     :param results: A list of results from the global names verifier.
     :return: A list of results with authorship conflicts solved.
     """
     # Only keep the first entry in results, per data source
     
-    check_datasourceid = set()  # To track seen `dataSourceId`s
+    check_datasourceid = set()  # To track already parsed `dataSourceId` in results
     out = []
     
     for result in results:
         if result["dataSourceId"] not in check_datasourceid:
             out.append(result)  # Add the first occurrence
-            check_datasourceid.add(result["dataSourceId"])  # Mark this `dataSourceId` as seen
+            check_datasourceid.add(result["dataSourceId"])  # Mark this `dataSourceId` as parsed
 
     return out
 
-def verify(name: List[str], authorship: List[str] = None, data_sources: list = DATA_SOURCES, all_matches: bool = ALL_MATCHES) -> List[dict]:
+def verify(name: str, authorship: str = None, data_sources: list = DATA_SOURCES, all_matches: bool = ALL_MATCHES) -> List[dict]:
     """
     This function takes a list of names and returns a list of results from the global names verifier.
-    :param names: A list of names to verify.
+    :param names: A name to verify.
+    :param authorship: Authorship of the name to verify.
     :param data_sources: A list of data sources to use.
     :param all_matches: Whether to return all matches.
     :return: A list of results from the global names verifier.
     """
+    if isinstance(authorship, str) and authorship.strip():
+            name = " ".join([name, authorship])
+            
     gn_out = _verify(name, data_sources, all_matches)
     names = gn_out['names']
     for i, name in enumerate(names):

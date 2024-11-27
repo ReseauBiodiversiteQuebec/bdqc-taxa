@@ -91,9 +91,6 @@ class TaxaRef:
 
     @classmethod
     def from_global_names(cls, name: str, authorship: str = None, data_sources: List[int] = None):
-        if isinstance(authorship, str) and authorship.strip():
-            name =" ".join([name, authorship])
-
         if data_sources is None:
             data_sources = DATA_SOURCES
 
