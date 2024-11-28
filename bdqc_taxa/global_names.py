@@ -120,10 +120,11 @@ def verify(name: str, authorship: str = None, data_sources: list = DATA_SOURCES,
             pass
         
         if authorship:
-            names[i]['results'] = _solve_authorship_conflicts(name['results'])
-        else:
-            pass
-    
+            try:
+                names[i]['results'] = _solve_authorship_conflicts(name['results'])
+            except KeyError:
+                pass
+
     gn_out['names'] = names
 
     return gn_out
