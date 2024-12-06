@@ -219,7 +219,8 @@ class TaxaRef:
 
         # Create rows for valid taxon
         classification_srids = [
-            result[f'{k}Key'] for k in GBIF_RANKS if k in result.keys()]
+            result[f'{k}Key'] for k in GBIF_RANKS if k in result.keys()] + ([result['key']] if 'key' in result else [])
+        classification_srids = list(set(classification_srids))
         
         try:
             rank_order = GBIF_RANKS.index(result['rank'].lower())

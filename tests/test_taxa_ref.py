@@ -336,6 +336,13 @@ class TestTaxaRef(unittest.TestCase):
         matches =  [ref for ref in results if (ref.match_type == 'partialexact' and ref.is_parent == False)]
         self.assertTrue(len(matches) == 0)
 
+    def test_gbif_catharus_swainsoni(self, name='Catharus swainsoni', authorship='(Tschudi, 1845)', parent_taxa='Chordata'):
+        results = taxa_ref.TaxaRef.from_all_sources(name, authorship, parent_taxa)
+        self.assertTrue(
+            any(res.scientific_name == 'Catharus ustulatus swainsoni' and
+                res.source_name == 'GBIF Backbone Taxonomy' for res in results)
+        )
+        
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
                              name='Lasiurus cinereus|Lasionycteris noctivagans'):
