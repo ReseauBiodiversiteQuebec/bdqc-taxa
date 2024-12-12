@@ -11,12 +11,13 @@
 
 
 import sqlite3
-import pkg_resources
+import importlib.resources
 
 # Get the database file from the package data
 
 DB_FILE = 'custom_sources.sqlite'
-db_path = pkg_resources.resource_filename('bdqc_taxa', DB_FILE)
+with importlib.resources.open_binary('bdqc_taxa', DB_FILE) as db_file:
+    db_path = db_file.name
 
 # Connect to the database
 conn = sqlite3.connect(db_path)
