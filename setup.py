@@ -27,4 +27,10 @@ setuptools.setup(
     packages=['bdqc_taxa'],
     package_data={'bdqc_taxa': ['custom_sources.sqlite']},
     python_requires=">=3.6",
+    extras_require={
+        'dev': [
+            'pandas',
+            'numpy'
+        ],
+    },
 )

@@ -5,7 +5,7 @@
 
 ## Installation
 
-> **For installation in postgres server**
+> ### For installation in postgres server
 > 
 > Installation must be performed as `postgres` user :
 > ```
@@ -22,6 +22,14 @@ pip install git+https://github.com/ReseauBiodiversiteQuebec/bdqc_taxa#egg=bdqc_t
 For an upgrade
 ```
 pip install --upgrade git+https://github.com/ReseauBiodiversiteQuebec/bdqc_taxa#egg=bdqc_taxa
+```
+
+### For development
+
+```
+git clone
+cd bdqc_taxa
+pip install -e .[dev] # install the package in editable mode with dev dependencies
 ```
 
 ## Usage
