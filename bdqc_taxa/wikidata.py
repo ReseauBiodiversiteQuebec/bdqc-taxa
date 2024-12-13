@@ -1,5 +1,6 @@
 import urllib.request
 import json
+from typing import Union, List
 
 BASE_URL = "https://www.wikidata.org/w/api.php?"
 
@@ -36,17 +37,19 @@ def search_entities(query, language="en"):
     
     return results
 
-def get_entities(id, languages=["en, fr"]):
+def get_entities(id: Union[str, List[str]], languages=["en, fr"]):
     """
     Get details of a specific entity from Wikidata based on its QID.
 
     Args:
-    - id (str): The identifier of the entity (e.g., Q12345).
-    - languages (list, optional): List of languages to fetch details in. Default is ['en'].
+    - id (Union[str, List[str]]): The identifier(s) of the entity (e.g., Q12345 or a list of QIDs).
+    - languages (list, optional): List of languages to fetch details in. Default is ['en', 'fr'].
 
     Returns:
     - dict: Entity details as a dictionary.
     """
+    if isinstance(id, list):
+        id = "|".join(id)
     
     params = {
         "action": "wbgetentities",
@@ -65,6 +68,6 @@ def get_entities(id, languages=["en, fr"]):
     
     # Return entity details
 
-    entity = data["entities"][id]
+    entities = data["entities"].values()
 
-    return entity
+    return list(entities)

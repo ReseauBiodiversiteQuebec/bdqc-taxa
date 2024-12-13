@@ -4,6 +4,7 @@ from . import cdpnq
 from . import eliso
 from . import taxa_ref
 from . import wikidata
+from typing import Optional
 
 # ACCEPTED_DATA_SOURCE = [
 #     'Integrated Taxonomic Information System (ITIS)',
@@ -40,7 +41,7 @@ class Vernacular:
                  source: str = '',
                  source_taxon_key: str = '',
                  language: str = '',
-                 rank: str = None,
+                 rank: Optional[str] = None,
                  rank_order: int = 9999):
         self._name = name
         self.source = source
@@ -54,10 +55,10 @@ class Vernacular:
         return initcap_vernacular(self._name)
 
     @classmethod
-    def from_gbif(cls, gbif_key: int, rank: str = None):
+    def from_gbif(cls, gbif_key: int, rank: Optional[str] = None):
         out = []
-        gbif_results = gbif.Species.get_vernacular_name(gbif_key)
-        for result in gbif_results:
+        gbif_search_results = gbif.Species.get_vernacular_name(gbif_key)
+        for result in gbif_search_results:
             if result['language'] not in ACCEPTED_LANGUAGE:
                 continue
             vernacular = cls(
@@ -152,19 +153,32 @@ class Vernacular:
         return out
 
     @classmethod
-    def from_wikidata_match(cls, name: str = '', rank: str = None):
+    def from_wikidata_match(cls, name: str = '', rank: Optional[str] = None):
         LANGUAGE_DICT = {
             'fr': 'fra',
             'en': 'eng'
         }
                 
         out = []
+        search_results = wikidata.search_entities(name)
+        ids = [result['id'] for result in search_results]
+        entities = wikidata.get_entities(ids, languages=['fr', 'en'])
+
+        # Filter entities with claims of taxon name (P225)
+        # If rank is specified, filter entities with claims of rank (P105) matching the rank
+        entity = None
         try:
-            result = wikidata.search_entities(name)[0]
-        except IndexError:
-            return out
+            # Get the first entity with a taxon name claim
+            if rank:
+                entity = next(entity for entity in entities if 'P105' in entity['claims'] and entity['claims']['P105'][0]['mainsnak']['datavalue']['value']['id'] == rank)
+            else:
+                entity = next(entity for entity in entities if 'P105' in entity['claims'])
+        except StopIteration:
+            pass
+        if not entity:
+            return []
         
-        entity = wikidata.get_entities(result['id'], languages=['fr', 'en'])
+        scientific_name = entity['claims']['P225'][0]['mainsnak']['datavalue']['value']
 
         # For each language, we only keep the first result that is not a scientific name
         for language in LANGUAGE_DICT.keys():
@@ -182,11 +196,13 @@ class Vernacular:
                 continue
 
             for name_dict in name_dicts:
+                if name_dict['value'] == scientific_name:
+                    continue
                 vernacular = cls(
                     name = name_dict['value'],
                     source = 'Wikidata',
                     language = LANGUAGE_DICT[language],
-                    source_taxon_key = result['id'],
+                    source_taxon_key = entity['id'],
                     rank = rank,
                     rank_order = rank_order(rank)
                 )
@@ -197,7 +213,7 @@ class Vernacular:
         return out
 
     @classmethod
-    def from_match(cls, name: str, rank: str = None, **match_kwargs):
+    def from_match(cls, name: str, rank: Optional[str] = None, **match_kwargs):
         out = cls.from_gbif_match(name, **match_kwargs)
 
         # Get the first result rank to use as a fallback

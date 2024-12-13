@@ -123,6 +123,19 @@ class TestVernacular(TestCase):
         # Assert empty list
         self.assertEqual(len(results), 0)
 
+    def test_wikidata_return_only_taxons(self, query='Alcea', bad_name = 'Alcea (given name)'):
+        # Previous error where scientific name Alcea match a personality in wikidata but not a taxon
+        results = Vernacular.from_wikidata_match(query)
+        # Assert no `(given name)`` string in results
+        self.assertFalse(any([bad_name in vn.name for vn in results]))
+
+
+    def test_wikidata_filters_scientific_name(self, query='Acer saccharum saccharum', bad_name = 'Acer saccharum'):
+        # Previous error where scientific name is in french or english and is not desired.
+        results = Vernacular.from_wikidata_match(query)
+        # Assert no scientific name in results
+        self.assertFalse(any([bad_name in vn.name for vn in results]))
+
 class TestInitcap(TestCase):
     def test_initcap_vernacular(self, text = 'Vincent Beauregard'):
         self.assertEqual(initcap_vernacular(text), 'Vincent beauregard')
