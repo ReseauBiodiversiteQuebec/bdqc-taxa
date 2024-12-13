@@ -81,7 +81,7 @@ genus_rows["valid_name"] = genus_rows["name"]
 genus_rows["rank"] = "genus"
 genus_rows["author"] = np.nan
 genus_rows["canonical_full"] = genus_rows["name"]
-genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.split(" ").str[0]
+genus_rows["vernacular_fr"] = np.nan
 
 # Drop duplicates
 genus_rows = genus_rows.drop_duplicates(subset=["name"])

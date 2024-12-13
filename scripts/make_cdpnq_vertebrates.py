@@ -110,12 +110,7 @@ genus_rows["rank"] = "genus"
 genus_rows["author"] = np.nan
 
 # Remove `petit` or `grand` from the vernacular names
-genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.replace("Petit ", "").str.strip()
-genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.replace("Petite ", "").str.strip()
-genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.replace("Grand ", "").str.strip()
-genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.replace("Grande ", "").str.strip()
-genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.split(" ").str[0]
-genus_rows["vernacular_fr"] = genus_rows["vernacular_fr"].str.capitalize()
+genus_rows["vernacular_fr"] = np.nan
 genus_rows["vernacular_en"] = np.nan
 genus_rows["canonical_full"] = genus_rows["name"]
 
