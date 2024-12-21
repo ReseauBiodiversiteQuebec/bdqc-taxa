@@ -2,7 +2,6 @@ from . import gbif
 from . import bryoquel
 from . import cdpnq
 from . import eliso
-from . import taxa_ref
 from . import wikidata
 from typing import Optional
 
@@ -158,9 +157,17 @@ class Vernacular:
             'fr': 'fra',
             'en': 'eng'
         }
+        if rank:
+            rank = rank.lower().strip()
+            try:
+                rank_qid = wikidata.TAXA_RANKS_QID[rank]
+            except KeyError:
+                raise ValueError(f"Rank '{rank}' is not in the list of accepted ranks.")
                 
         out = []
         search_results = wikidata.search_entities(name)
+        if not search_results:
+            return []
         ids = [result['id'] for result in search_results]
         entities = wikidata.get_entities(ids, languages=['fr', 'en'])
 
@@ -169,8 +176,8 @@ class Vernacular:
         entity = None
         try:
             # Get the first entity with a taxon name claim
-            if rank:
-                entity = next(entity for entity in entities if 'P105' in entity['claims'] and entity['claims']['P105'][0]['mainsnak']['datavalue']['value']['id'] == rank)
+            if rank:                
+                entity = next(entity for entity in entities if 'P105' in entity['claims'] and entity['claims']['P105'][0]['mainsnak']['datavalue']['value']['id'] == rank_qid)
             else:
                 entity = next(entity for entity in entities if 'P105' in entity['claims'])
         except StopIteration:
