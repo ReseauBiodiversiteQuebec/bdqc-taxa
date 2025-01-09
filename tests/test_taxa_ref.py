@@ -343,6 +343,13 @@ class TestTaxaRef(unittest.TestCase):
                 res.source_name == 'GBIF Backbone Taxonomy' for res in results)
         )
         
+    def test_cod_cdpnq_no_doublematch(self, name='Gadus ogac', authorship='Tilesius, 1810', parent_taxa=''):
+        results = taxa_ref.TaxaRef.from_all_sources(name, authorship, parent_taxa)
+        self.assertTrue(
+            not any(res.scientific_name == 'Gadus macrocephalus' and
+                    res.source_name == 'CDPNQ' for res in results)
+        )
+
 class TestComplex(unittest.TestCase):
     def test_complex_is_true(self,
                              name='Lasiurus cinereus|Lasionycteris noctivagans'):
