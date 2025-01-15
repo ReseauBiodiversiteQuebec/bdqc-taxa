@@ -342,10 +342,13 @@ class TaxaRef:
         out.extend(cls.from_cdpnq(name)) # exact match only
         
         # Fuzzy match for custom sources
-        fuzzy_names = list({(ref.scientific_name, ref.match_type) for ref in out
-                       if not ref.is_parent and ref.match_type != 'exact'})
+        if not any(ref.source_name in ('CDPNQ', 'Bryoquel') for ref in out):
+            fuzzy_names = list({(ref.scientific_name, ref.match_type) for ref in out
+                               if not ref.is_parent and ref.match_type != 'exact'})
+        else : 
+            fuzzy_names = []
         
-        if len(fuzzy_names) >= 1:
+        if fuzzy_names:
             for fuzzy_name, match_type in fuzzy_names:
                 out.extend(cls.from_custom_sources_fuzzy_matched(fuzzy_name, match_type))
             
