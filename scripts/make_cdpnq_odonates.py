@@ -29,6 +29,9 @@ df["valid_name"] = df["name"]
 # Add the rank column
 df["rank"] = "species"
 
+## Specify the rank for subspecies
+df.loc[df['valid_name'].str.split().str.len() == 3, 'rank'] = 'subspecies'
+
 # Add the synonym column
 df["synonym"] = False
 
